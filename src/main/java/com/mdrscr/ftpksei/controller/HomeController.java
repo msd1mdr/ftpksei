@@ -17,20 +17,20 @@ public class HomeController {
 	@Autowired 
 	private StatementService statementService;
 	
-	@GetMapping(value="/runftp")
-	public @ResponseBody String call () {
-		List<String> msg = new ArrayList<>();
+	@GetMapping(value="/sendstmt")
+	public @ResponseBody String stmt () {
+		String msg = "x";
 		try {
-			msg = statementService.getStatement();
+			msg = statementService.sendToKsei();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		String response = "<h2>STATEMENT</h2>";
-		for (String m : msg) {
-			response += "<p>" + m + "</p>";
-		}
+		response += "<p>" + msg + "</p>";
 		
 		return response;
 	}
+	
+	
 }

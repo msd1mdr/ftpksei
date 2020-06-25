@@ -13,6 +13,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
@@ -40,20 +41,16 @@ public class StatementService {
 
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
 
-	public List<String> getStatement () throws IOException {
-		System.out.println("Mulai.");
-		List<BejStatementStaging> stmts = new ArrayList<>();
-		List<String> msg = new ArrayList<>();
+    @Transactional
+	public String sendToKsei () throws IOException {
 
     	Integer fileCounter = fileTransmisionService.getLastFileNumber() + 1;
 		String fileName = "ReactStmt_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
-		String newLine = "";
 
 		FileWriter fileWriter = new FileWriter(localDir + fileName);
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
 		
-		stmts = bejStmtStgRepo.findByFlag("T");
-		System.out.println("Jumlah: " + stmts.size());
+	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByFlag("T");
 
 		for (BejStatementStaging stmt : stmts) {
 			
@@ -61,7 +58,7 @@ public class StatementService {
 			stmtMsg.setFileName(fileName);
 			stmtMsg.setCreateTime(LocalDateTime.now());
 			
-			newLine = stmt.getExtref() + "|" + 
+			String newLine = stmt.getExtref() + "|" + 
 						stmt.getSeqnum() + "|" + 
 						stmt.getAcctno() + "|" +
 						stmt.getCurcod() + "|" +
@@ -74,24 +71,17 @@ public class StatementService {
 						stmt.getTrndsc() + "|" +
 						stmt.getClsbal() + "|" +
 						(stmt.getAcnote()==null?"":stmt.getAcnote());
-			msg.add(newLine);
 	    	printWriter.println(newLine);
 	    	
 	    	statementMsgRepo.save(stmtMsg);
-
+	    	stmt.setFlag("Y");
+	    	bejStmtStgRepo.save(stmt);
 		}
 		
     	printWriter.close();
     	
-    	FileTransmision fileQ = new FileTransmision();
-    	fileQ.setFileName(fileName);
-    	fileQ.setRecipient("KSEI");
-    	fileQ.setSendMethod("FTP");
-    	fileQ.setSubModul("STATEMENT");
-    	fileQ.setSendTime(LocalDateTime.now());
-    	fileQ.setValDate(df.format(new Date()));
-    	fileQ.setDailyCounter(fileCounter);
-    	
+    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter);
+
     	// kirim pake ftp
     	try {
 			ftpService.upload(fileName);
@@ -106,7 +96,7 @@ public class StatementService {
     	
     	fileTransmisionService.save(fileQ);
 		
-		return msg;
+		return fileName;
 	}
 	
 }

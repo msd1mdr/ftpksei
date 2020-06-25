@@ -11,4 +11,5 @@ import com.mdrscr.ftpksei.persist.model.BejStatementStaging;
 public interface BejStatementStagingRepo extends JpaRepository<BejStatementStaging, String> {
 
 	List<BejStatementStaging> findByFlag (String fl);
+	
 }

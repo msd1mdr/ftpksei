@@ -51,7 +51,7 @@ public class FtpService {
         	String localFile = localDir + fileName;
         	String remoteDir = "./";
 
-        	channelSftp.put(localFile, remoteDir + "chat.txt");
+        	channelSftp.put(localFile, remoteDir + fileName);
 
         	channelSftp.exit();
 

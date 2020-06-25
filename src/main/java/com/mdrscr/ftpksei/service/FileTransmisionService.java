@@ -29,7 +29,7 @@ public class FileTransmisionService {
 	}
 	
 	public List<FileTransmision> findAllError () {
-		return fileTransmisionRepo.findBySendStatus("ERROR");
+		return fileTransmisionRepo.findBySendStatusOrderBySendTime("ERROR");
 	}
 	
 	public void save (FileTransmision fileRec) {

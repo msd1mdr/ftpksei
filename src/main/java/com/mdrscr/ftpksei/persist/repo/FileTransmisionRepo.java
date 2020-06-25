@@ -11,5 +11,5 @@ import com.mdrscr.ftpksei.persist.model.FileTransmision;
 public interface FileTransmisionRepo extends JpaRepository<FileTransmision, Long> {
 
 	public List<FileTransmision> findByValDateOrderByDailyCounterDesc (String valdate);
-	public List<FileTransmision> findBySendStatus(String sendStatus);
+	public List<FileTransmision> findBySendStatusOrderBySendTime(String sendStatus);
 }
