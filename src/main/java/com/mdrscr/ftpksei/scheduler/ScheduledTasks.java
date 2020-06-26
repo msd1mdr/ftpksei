@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.mdrscr.ftpksei.properties.AppConfig;
 import com.mdrscr.ftpksei.service.RetryService;
 
 @Component

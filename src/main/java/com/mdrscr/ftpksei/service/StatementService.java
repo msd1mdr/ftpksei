@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,6 +22,7 @@ import com.mdrscr.ftpksei.persist.model.FileTransmision;
 import com.mdrscr.ftpksei.persist.model.StatementKsei;
 import com.mdrscr.ftpksei.persist.repo.BejStatementStagingRepo;
 import com.mdrscr.ftpksei.persist.repo.StatementKseiRepo;
+import com.mdrscr.ftpksei.properties.AppConfig;
 
 @Service
 public class StatementService {
@@ -35,19 +35,18 @@ public class StatementService {
 	private FtpService ftpService;
 	@Autowired
 	private FileTransmisionService fileTransmisionService;
+	@Autowired
+	private AppConfig appConfig;
 	
-	@Value("${scrp.ksei.ftp.localdir}")
-    private String localDir;
-
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
-
+  
     @Transactional
 	public String sendToKsei () throws IOException {
 
     	Integer fileCounter = fileTransmisionService.getLastFileNumber() + 1;
 		String fileName = "ReactStmt_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
 
-		FileWriter fileWriter = new FileWriter(localDir + fileName);
+		FileWriter fileWriter = new FileWriter(appConfig.getKsei().getFtpLocalDir() + fileName);
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
 		
 	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByFlag("T");

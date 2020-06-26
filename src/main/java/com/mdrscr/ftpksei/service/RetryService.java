@@ -1,7 +1,6 @@
 package com.mdrscr.ftpksei.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.mdrscr.ftpksei.persist.model.FileTransmision;
-import com.mdrscr.ftpksei.persist.repo.FileTransmisionRepo;
 
 @Service
 public class RetryService {
