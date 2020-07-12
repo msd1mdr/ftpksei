@@ -19,8 +19,8 @@ public class FileTransmisionService {
 	
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
 
-	public Integer getLastFileNumber () {
-		List<FileTransmision> files = fileTransmisionRepo.findByValDateOrderByDailyCounterDesc(df.format(new Date()));
+	public Integer getLastFileNumber (String subModul) {
+		List<FileTransmision> files = fileTransmisionRepo.findBySubModulAndValDateOrderByDailyCounterDesc(subModul, df.format(new Date()));
 		Integer lastNumber = new Integer(0);
 		if (files.size() > 0) {
 			lastNumber = files.get(0).getDailyCounter();

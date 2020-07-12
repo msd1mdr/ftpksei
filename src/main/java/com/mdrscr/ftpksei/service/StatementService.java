@@ -10,19 +10,17 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.mdrscr.ftpksei.mapper.StatementMapper;
 import com.mdrscr.ftpksei.persist.model.BejStatementStaging;
 import com.mdrscr.ftpksei.persist.model.FileTransmision;
 import com.mdrscr.ftpksei.persist.model.StatementKsei;
 import com.mdrscr.ftpksei.persist.repo.BejStatementStagingRepo;
 import com.mdrscr.ftpksei.persist.repo.StatementKseiRepo;
-import com.mdrscr.ftpksei.properties.AppConfig;
+import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class StatementService {
@@ -30,60 +28,80 @@ public class StatementService {
 	@Autowired
 	private BejStatementStagingRepo bejStmtStgRepo;
 	@Autowired
-	private StatementKseiRepo statementMsgRepo;
+	private StatementKseiRepo statementKseiRepo;
 	@Autowired
 	private FtpService ftpService;
 	@Autowired
 	private FileTransmisionService fileTransmisionService;
 	@Autowired
-	private AppConfig appConfig;
+	private KseiConfig kseiConfig;
 	
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
   
+    public StatementKsei mapping (BejStatementStaging bejstmt) {
+    	StatementKsei stmt = new StatementKsei();
+    	stmt.setExtref(bejstmt.getExtref());
+    	stmt.setSeqnum(bejstmt.getSeqnum());
+    	stmt.setAc(bejstmt.getAcctno());
+    	stmt.setCurcod(bejstmt.getCurcod());
+    	stmt.setValdate(bejstmt.getValdat());
+    	stmt.setOpenbal(bejstmt.getOpnbal());
+    	stmt.setStatLineExtRef(bejstmt.getTrnref());
+    	stmt.setTrxtype(bejstmt.getTrntyp());
+    	stmt.setDc(bejstmt.getDrorcr());
+    	stmt.setCashVal(bejstmt.getTrnamt());
+    	stmt.setDescription(bejstmt.getTrndsc());
+    	stmt.setCloseBal(bejstmt.getClsbal());
+    	stmt.setNotes(bejstmt.getAcnote());
+    	return stmt;
+    }
+    
     @Transactional
 	public String sendToKsei () throws IOException {
 
-    	Integer fileCounter = fileTransmisionService.getLastFileNumber() + 1;
+    	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATEMENT") + 1;
 		String fileName = "ReactStmt_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
 
-		FileWriter fileWriter = new FileWriter(appConfig.getKsei().getFtpLocalDir() + fileName);
+		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalDir() + fileName);
+		System.out.println("ketemu: " + kseiConfig.getLocalDir() + fileName);
+
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
 		
 	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByFlag("T");
 
 		for (BejStatementStaging stmt : stmts) {
 			
-			StatementKsei stmtMsg = StatementMapper.INSTANCE.stmtStgToStatementMsg(stmt);
-			stmtMsg.setFileName(fileName);
-			stmtMsg.setCreateTime(LocalDateTime.now());
+			StatementKsei stmtKsei = mapping(stmt);
+			stmtKsei.setFileName(fileName);
+			stmtKsei.setCreateTime(LocalDateTime.now());
 			
-			String newLine = stmt.getExtref() + "|" + 
-						stmt.getSeqnum() + "|" + 
-						stmt.getAcctno() + "|" +
-						stmt.getCurcod() + "|" +
-						stmt.getValdat() + "|" +
-						stmt.getOpnbal() + "|" +
-						stmt.getTrnref() + "|" +
-						stmt.getTrntyp() + "|" +
-						stmt.getDrorcr() + "|" +
-						stmt.getTrnamt() + "|" +
-						stmt.getTrndsc() + "|" +
-						stmt.getClsbal() + "|" +
-						(stmt.getAcnote()==null?"":stmt.getAcnote());
+			String newLine = stmtKsei.getExtref() + "|" + 
+						stmtKsei.getSeqnum() + "|" + 
+						stmtKsei.getAc() + "|" +
+						stmtKsei.getCurcod() + "|" +
+						stmtKsei.getValdate() + "|" +
+						stmtKsei.getOpenbal() + "|" +
+						stmtKsei.getStatLineExtRef() + "|" +
+						stmtKsei.getTrxtype() + "|" +
+						stmtKsei.getDc() + "|" +
+						stmtKsei.getCashVal() + "|" +
+						stmtKsei.getDescription() + "|" +
+						stmtKsei.getCloseBal() + "|" +
+						stmtKsei.getNotes()==null?"":stmtKsei.getNotes();
 	    	printWriter.println(newLine);
 	    	
-	    	statementMsgRepo.save(stmtMsg);
+	    	statementKseiRepo.save(stmtKsei);
 	    	stmt.setFlag("Y");
 	    	bejStmtStgRepo.save(stmt);
 		}
 		
     	printWriter.close();
     	
-    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter);
+    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "STATEMENT");
 
     	// kirim pake ftp
     	try {
-			ftpService.upload(fileName);
+			ftpService.upload(fileName, kseiConfig.getLocalDir(), kseiConfig.getFtpOutboundDir());
 			fileQ.setSendStatus("SUCCESS");
 		} catch (JSchException | SftpException e) {
 			// TODO Auto-generated catch block

@@ -1,8 +1,9 @@
 package com.mdrscr.ftpksei.properties;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
+@Data @NoArgsConstructor
 public class KseiProperties {
 	
 	private String ftpLocalDir;

@@ -40,12 +40,12 @@ public class FileTransmision {
 	private String errorMsg;
 	private LocalDateTime sendTime;
 	
-	public FileTransmision (String fname, Integer counter) {
+	public FileTransmision (String fname, Integer counter, String subModul) {
 	    DateFormat df = new SimpleDateFormat("yyyyMMdd");
     	this.fileName = fname;
     	this.recipient = "KSEI";
     	this.sendMethod = "FTP";
-    	this.subModul = "STATEMENT";
+    	this.subModul = subModul;
     	this.sendTime = LocalDateTime.now();
     	this.valDate = df.format(new Date());
     	this.dailyCounter = counter;

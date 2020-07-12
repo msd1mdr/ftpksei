@@ -1,59 +1,71 @@
 package com.mdrscr.ftpksei.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import com.mdrscr.ftpksei.properties.AppConfig;
+import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class FtpService {
 
 	@Autowired
-	private AppConfig appConfig;
-//    private String localFile = "src/main/resources/input.txt";
-//    private String remoteFile = "welcome.txt";
+	private KseiConfig kseiConfig;
+  
+    @Value("${scrp.sftp.knownhosts}")
+    private String knownHosts;
 
-    private String remoteDir = "home/tomcat/";
-//    private String knownHostsFileLoc = "/Users/USERNAME/known_hosts_sample";
+    public ChannelSftp setupJsch() throws JSchException  {
+    	JSch jsch = new JSch();
+    	jsch.setKnownHosts(knownHosts);
+    	Session jschSession = jsch.getSession(kseiConfig.getFtpUser(), 
+    										  kseiConfig.getFtpIpAddr());
+    	jschSession.setPassword(kseiConfig.getFtpPasswd());
+    	jschSession.connect();
+    	return (ChannelSftp) jschSession.openChannel("sftp");
+    }
 
+    public void download(String remoteDir, String localDir) 
+    			throws JSchException, SftpException {
+    	ChannelSftp channelSftp = setupJsch();
+    	channelSftp.connect();
 
-        public ChannelSftp setupJsch() throws JSchException  {
-	    	JSch jsch = new JSch();
-	    	jsch.setKnownHosts("C:\\Users\\fransma\\.ssh\\known_hosts");
-	    	Session jschSession = jsch.getSession(appConfig.getKsei().getFtpUser(), 
-	    										  appConfig.getKsei().getFtpIpAddr());
-	    	jschSession.setPassword(appConfig.getKsei().getFtpPasswd());
-	    	jschSession.connect();
-	    	return (ChannelSftp) jschSession.openChannel("sftp");
-        }
+    	channelSftp.lcd(localDir);
+    	channelSftp.cd(remoteDir); 
+    	
+    	@SuppressWarnings("unchecked")
+		Vector <LsEntry> rfiles = channelSftp.ls("*.txt");
+    	for (LsEntry lsEntry : rfiles) {
+    		String fileName = lsEntry.getFilename();
+    		System.out.println("Akan ambil file " + fileName);
+        	channelSftp.get(fileName, localDir + fileName);
+        	channelSftp.rm(fileName);
+    	}
 
-        public void download() throws JSchException, SftpException {
-        	ChannelSftp channelSftp = setupJsch();
-        	channelSftp.connect();
+    	channelSftp.disconnect();
+    	channelSftp.exit();
 
-        	String remoteFile = "logcustmobil.log";
-        	
-        	channelSftp.get(remoteFile, appConfig.getKsei().getFtpLocalDir() + "jschFile.txt");
-        	
-        	channelSftp.exit();
-
-        }
+    }
         
-        public void upload(String fileName) throws JSchException, SftpException {
-        	ChannelSftp channelSftp = setupJsch();
-        	channelSftp.connect();
-        	String localFile = appConfig.getKsei().getFtpLocalDir() + fileName;
-        	String remoteDir = "./";
+    public void upload(String fileName, String localDir, String remoteDir) 
+    				throws JSchException, SftpException {
+    	ChannelSftp channelSftp = setupJsch();
+    	channelSftp.connect();
 
-        	channelSftp.put(localFile, remoteDir + fileName);
+    	channelSftp.put(localDir + fileName, remoteDir + fileName);
 
-        	channelSftp.exit();
+    	channelSftp.disconnect();
+    	channelSftp.exit();
 
-        }
+    }
 }
