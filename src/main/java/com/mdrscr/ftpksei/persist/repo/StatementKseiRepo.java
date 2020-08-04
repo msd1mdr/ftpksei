@@ -8,4 +8,5 @@ import com.mdrscr.ftpksei.persist.model.StatementKsei;
 @Repository
 public interface StatementKseiRepo extends JpaRepository<StatementKsei, Long> {
 
+	public StatementKsei findByExtrefAndFileName (String extref, String fileName);
 }

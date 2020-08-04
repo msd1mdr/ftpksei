@@ -14,4 +14,7 @@ public interface FileTransmisionRepo extends JpaRepository<FileTransmision, Long
 													String subModul, String valdate);
 	
 	public List<FileTransmision> findBySendStatusOrderBySendTime(String sendStatus);
+	
+	public FileTransmision findByFileName(String fileName);
+
 }

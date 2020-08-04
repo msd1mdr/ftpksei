@@ -49,9 +49,9 @@ public class ScheduledTasks {
     }
   
     public void ftpInKsei() {
-    	kseiResponse.getStatementResponse();
-    	kseiResponse.getStaticResponse();
-    	kseiResponse.getBalanceResponse();
+//    	kseiResponse.getStatementResponse();
+//    	kseiResponse.getStaticResponse();
+//    	kseiResponse.getBalanceResponse();
     }
     
 }

@@ -35,34 +35,36 @@ public class FtpService {
     	return (ChannelSftp) jschSession.openChannel("sftp");
     }
 
-    public void download(String remoteDir, String localDir) 
+    public List<String> download() 
     			throws JSchException, SftpException {
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
 
-    	channelSftp.lcd(localDir);
-    	channelSftp.cd(remoteDir); 
+    	channelSftp.lcd(kseiConfig.getLocalInbDir());
+    	channelSftp.cd(kseiConfig.getFtpInboundDir()); 
     	
+    	List<String> files = new ArrayList<String>();
     	@SuppressWarnings("unchecked")
-		Vector <LsEntry> rfiles = channelSftp.ls("*.txt");
+		Vector <LsEntry> rfiles = channelSftp.ls("*.fsp");
     	for (LsEntry lsEntry : rfiles) {
     		String fileName = lsEntry.getFilename();
     		System.out.println("Akan ambil file " + fileName);
-        	channelSftp.get(fileName, localDir + fileName);
-        	channelSftp.rm(fileName);
+        	channelSftp.get(fileName, kseiConfig.getLocalInbDir() + fileName);
+//        	channelSftp.rm(fileName);
+        	files.add(fileName);
     	}
 
     	channelSftp.disconnect();
     	channelSftp.exit();
-
+    	return files;
     }
         
-    public void upload(String fileName, String localDir, String remoteDir) 
+    public void upload(String fileName, String localDir) 
     				throws JSchException, SftpException {
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
 
-    	channelSftp.put(localDir + fileName, remoteDir + fileName);
+    	channelSftp.put(localDir + fileName, kseiConfig.getFtpOutboundDir() + fileName);
 
     	channelSftp.disconnect();
     	channelSftp.exit();

@@ -55,7 +55,7 @@ public class BalanceService {
 		Integer fileCounter = fileTransmisionService.getLastFileNumber("BALANCE") + 1;
 		String fileName = "ReactStmt_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
 	
-		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalDir() + fileName);
+		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + fileName);
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
 		
 	    List<Bejacn> balance = bejacnRepo.findAll();
@@ -63,7 +63,7 @@ public class BalanceService {
 		for (Bejacn bal : balance) {
 			
 			BalanceKsei balKsei = mapFrom(bal);
-			balKsei.setFile_name(fileName);
+			balKsei.setFileName(fileName);
 
 			String newLine = balKsei.getExtref() + "|" +
 							 balKsei.getBankcode() + "|" +

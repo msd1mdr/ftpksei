@@ -34,11 +34,15 @@ public class FileTransmision {
 	private String subModul;
 	@Column(name="VALDATE")
 	private String valDate;
+	private Integer recordNumber;
 	private String sendStatus;
 	private Integer retry;
 	@Column(name="ERRORMSG")
 	private String errorMsg;
 	private LocalDateTime sendTime;
+	private String responseFile;
+	private Integer responseSuccess;
+	private Integer responseError;
 	
 	public FileTransmision (String fname, Integer counter, String subModul) {
 	    DateFormat df = new SimpleDateFormat("yyyyMMdd");

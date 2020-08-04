@@ -47,7 +47,6 @@ public class StatementKsei {
 	private String ackStatus;
 	@Column(name="ACK_NOTES")
 	private String ackNotes;
-	@Column(name="ACK_TIME")
 	private LocalDateTime ackTime;
 	
 	public StatementKsei () {}

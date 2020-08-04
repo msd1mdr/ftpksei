@@ -1,5 +1,7 @@
 package com.mdrscr.ftpksei.persist.model;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -19,9 +21,9 @@ public class BalanceKsei {
 	private String valdate;
 	private String balance;
 	private String notes;
-	private String file_name;
-	private String ack_status;
-	private String ack_time;
-	private String ack_notes;
+	private String fileName;
+	private String ackStatus;
+	private LocalDateTime ackTime;
+	private String ackNotes;
 	
 }

@@ -59,18 +59,18 @@ public class StatementService {
     @Transactional
 	public String sendToKsei () throws IOException {
 
+    	Integer recordCounter = new Integer(0);
     	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATEMENT") + 1;
 		String fileName = "ReactStmt_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
 
-		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalDir() + fileName);
-		System.out.println("ketemu: " + kseiConfig.getLocalDir() + fileName);
+		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + fileName);
 
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
 		
 	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByFlag("T");
 
 		for (BejStatementStaging stmt : stmts) {
-			
+			recordCounter++;
 			StatementKsei stmtKsei = mapping(stmt);
 			stmtKsei.setFileName(fileName);
 			stmtKsei.setCreateTime(LocalDateTime.now());
@@ -98,10 +98,11 @@ public class StatementService {
     	printWriter.close();
     	
     	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "STATEMENT");
-
+    	fileQ.setRecordNumber(recordCounter);
+    	
     	// kirim pake ftp
     	try {
-			ftpService.upload(fileName, kseiConfig.getLocalDir(), kseiConfig.getFtpOutboundDir());
+			ftpService.upload(fileName, kseiConfig.getLocalOutbDir());
 			fileQ.setSendStatus("SUCCESS");
 		} catch (JSchException | SftpException e) {
 			// TODO Auto-generated catch block

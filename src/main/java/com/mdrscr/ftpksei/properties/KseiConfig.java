@@ -29,7 +29,8 @@ public class KseiConfig {
 	private String ftpUser;
 	private String ftpOutboundDir;
 	private String ftpInboundDir;
-	private String localDir;
+	private String localOutbDir;
+	private String localInbDir;
 
 	@PostConstruct
 	public void init() {
@@ -38,9 +39,10 @@ public class KseiConfig {
 		this.ftpPort = kseiInfo.getPort();
 		this.ftpUser = kseiInfo.getFtpUser();
 		this.ftpPasswd = kseiInfo.getFtpPasswd();
-		this.ftpInboundDir = kseiInfo.getInboundDir();
-		this.ftpOutboundDir = kseiInfo.getOutboundDir();
-		this.localDir = kseiInfo.getLocalDir();
+		this.ftpInboundDir = kseiInfo.getRemoteInboundDir();
+		this.ftpOutboundDir = kseiInfo.getRemoteOutboundDir();
+		this.localOutbDir = kseiInfo.getLocalOutboundDir();
+		this.localInbDir = kseiInfo.getLocalInboundDir();
 	}
 
 }

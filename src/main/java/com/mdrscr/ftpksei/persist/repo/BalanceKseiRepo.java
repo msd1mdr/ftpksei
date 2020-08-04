@@ -6,4 +6,5 @@ import com.mdrscr.ftpksei.persist.model.BalanceKsei;
 
 public interface BalanceKseiRepo extends JpaRepository<BalanceKsei, String> {
 
+	public BalanceKsei findByExtrefAndFileName (String extref, String fileName);
 }

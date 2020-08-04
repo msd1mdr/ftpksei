@@ -1,7 +1,5 @@
 package com.mdrscr.ftpksei.persist.model;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,12 +26,10 @@ public class FtpInfo {
 	@Column(name="PASSWD")
 	private String ftpPasswd;
 
-	@Column(name="OUTBND_DIR")
-	private String outboundDir;
-	
-	@Column(name="INBND_DIR")
-	private String inboundDir;
-	private String localDir;
+	private String localInboundDir;
+	private String localOutboundDir;
+	private String remoteInboundDir;
+	private String remoteOutboundDir;
 
 	
 }

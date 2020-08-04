@@ -8,4 +8,5 @@ import com.mdrscr.ftpksei.persist.model.StaticKsei;
 @Repository
 public interface StaticKseiRepo extends JpaRepository<StaticKsei, String> {
 
+	public StaticKsei findByExtrefAndFileName (String extref, String fileName);
 }
