@@ -35,12 +35,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>DataTables</h1>
+            <h1>Data Balance</h1>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">DataTables</li>
+              <li class="breadcrumb-item active">Data Balance</li>
             </ol>
           </div>
         </div>
@@ -55,33 +55,35 @@
 
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">Daftar Pengiriman FTP</h3>
+                <h3 class="card-title">File : <span th:text="${filename}"></span></h3>
               </div>
               <!-- /.card-header -->
               <div class="card-body">
                 <table id="filetransmision" class="table table-bordered table-striped">
                   <thead>
                   <tr>
-                    <th>File Name</th>
-                    <th>Submodul</th>
-                    <th>Sent Time</th>
-                    <th>Status</th>
-                    <th>Retry</th>
-                    <th>Error</th>
-					<th>Response File</th>
-					<th>Error#</th>
+                    <th>Extref</th>
+                    <th>Account</th>
+                    <th>Currency</th>
+                    <th>Balance</th>
+                    <th>Valdate</th>
+                    <th>File</th>
+                    <th>Notes</th>
+                    <th>Ack Status</th>
+                    <th>Ack Notes</th>
                   </tr>
                   </thead>
                   <tbody th:remove="all-but-first">
-                  <tr th:each="fl : ${fileList}">
-                    <td th:text="${fl.fileName}">Trident</td>
-                    <td th:text="${fl.subModul}">Win 95+</td>
-                    <td th:text="${fl.sendTime}">FTP</td>
-                    <td th:text="${fl.sendStatus}">X</td>
-                    <td th:text="${fl.retry}"> 4</td>
-                    <td th:text="${fl.errorMsg}">Iya ini error</td>
-                    <td th:text="${fl.responseFile}">file123.txt</td>
-                    <td th:text="${fl.responseError}">10</td>
+                  <tr th:each="bal : ${bals}">
+                    <td th:text="${bal.extref}">XXXXXX</td>
+                    <td th:text="${bal.account}">Internet Explorer 4.0</td>
+                    <td th:text="${bal.curcod}">Internet Explorer 4.0</td>
+                    <td th:text="${bal.balance}">Internet Explorer 4.0</td>
+                    <td th:text="${bal.valdate}">Internet Explorer 4.0</td>
+                    <td th:text="${bal.fileName}">Win 95+</td>
+                    <td th:text="${bal.notes}">FTP</td>
+                    <td th:text="${stat.ackStatus}">Iya ini error</td>
+                    <td th:text="${stat.ackNotes}">Iya ini error</td>
                   </tr>
                   <tr>
                     <td>Trident</td>
@@ -91,7 +93,6 @@
                     <td>5</td>
                     <td>C</td>
                     <td>C</td>
-                    <td>5</td>
                   </tr>
                   <tr>
                     <td>Trident</td>
@@ -101,7 +102,6 @@
                     <td>5.5</td>
                     <td>A</td>
                     <td>C</td>
-                    <td>2</td>
                   </tr>
                   <tr>
                     <td>Trident</td>
@@ -111,7 +111,6 @@
                     <td>6</td>
                     <td>A</td>
                     <td>C</td>
-                    <td>13</td>
                   </tr>
                   <tr>
                     <td>Trident</td>
@@ -121,29 +120,19 @@
                     <td>7</td>
                     <td>A</td>
                     <td>C</td>
-                    <td>2</td>
-                  </tr>
-                  <tr>
-                    <td>Trident</td>
-                    <td>AOL browser (AOL desktop)</td>
-                    <td>Win XP</td>
-                    <td>FTP</td>
-                    <td>6</td>
-                     <td>CSV</td>
-                    <td>C</td>
-                    <td>66</td>
                   </tr>
                   </tbody>
                   <tfoot>
                   <tr>
-                    <th>File Name</th>
-                    <th>Submodul</th>
-                    <th>Sent Time</th>
-                    <th>Status</th>
-                    <th>Retry</th>
-                    <th>Error</th>
-					<th>Response File</th>
-      				<th>Error#</th>
+                    <th>Extref</th>
+                    <th>Account</th>
+                    <th>Currency</th>
+                    <th>Balance</th>
+                    <th>Valdate</th>
+                    <th>File</th>
+                    <th>Notes</th>
+                    <th>Ack Status</th>
+                    <th>Ack Notes</th>
                   </tr>
                   </tfoot>
                 </table>

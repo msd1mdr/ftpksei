@@ -6,10 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data @NoArgsConstructor
 @Entity @Table(name="STATIC_KSEI")
 public class StaticKsei {
 
@@ -29,5 +25,96 @@ public class StaticKsei {
 	private String ackNotes;
 	private LocalDateTime ackTime;
 	private String fileName;
+	
+	public String getExtref() {
+		return extref;
+	}
+	public void setExtref(String extref) {
+		this.extref = extref;
+	}
+	public String getParticipantid() {
+		return participantid;
+	}
+	public void setParticipantid(String participantid) {
+		this.participantid = participantid;
+	}
+	public String getParticipantname() {
+		return participantname;
+	}
+	public void setParticipantname(String participantname) {
+		this.participantname = participantname;
+	}
+	public String getInvestorname() {
+		return investorname;
+	}
+	public void setInvestorname(String investorname) {
+		this.investorname = investorname;
+	}
+	public String getSidnumber() {
+		return sidnumber;
+	}
+	public void setSidnumber(String sidnumber) {
+		this.sidnumber = sidnumber;
+	}
+	public String getAccountnumber() {
+		return accountnumber;
+	}
+	public void setAccountnumber(String accountnumber) {
+		this.accountnumber = accountnumber;
+	}
+	public String getBankaccnumber() {
+		return bankaccnumber;
+	}
+	public void setBankaccnumber(String bankaccnumber) {
+		this.bankaccnumber = bankaccnumber;
+	}
+	public String getBankcode() {
+		return bankcode;
+	}
+	public void setBankcode(String bankcode) {
+		this.bankcode = bankcode;
+	}
+	public String getActivitydate() {
+		return activitydate;
+	}
+	public void setActivitydate(String activitydate) {
+		this.activitydate = activitydate;
+	}
+	public String getActivity() {
+		return activity;
+	}
+	public void setActivity(String activity) {
+		this.activity = activity;
+	}
+	public LocalDateTime getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(LocalDateTime createTime) {
+		this.createTime = createTime;
+	}
+	public String getAckStatus() {
+		return ackStatus;
+	}
+	public void setAckStatus(String ackStatus) {
+		this.ackStatus = ackStatus;
+	}
+	public String getAckNotes() {
+		return ackNotes;
+	}
+	public void setAckNotes(String ackNotes) {
+		this.ackNotes = ackNotes;
+	}
+	public LocalDateTime getAckTime() {
+		return ackTime;
+	}
+	public void setAckTime(LocalDateTime ackTime) {
+		this.ackTime = ackTime;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 	
 }

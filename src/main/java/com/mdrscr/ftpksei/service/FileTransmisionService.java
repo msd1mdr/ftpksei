@@ -35,4 +35,8 @@ public class FileTransmisionService {
 	public void save (FileTransmision fileRec) {
 		fileTransmisionRepo.save(fileRec);
 	}
+	
+	public List<FileTransmision> getResponseFileIsNull(String valdate) {
+		return fileTransmisionRepo.findByValDateAndResponseFileIsNull(valdate);
+	}
 }

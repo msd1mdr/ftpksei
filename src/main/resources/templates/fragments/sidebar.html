@@ -52,7 +52,7 @@
   <!-- /.navbar -->
 
   <!-- Main Sidebar Container -->
-  <aside th:fragment="mainsidebar" class="main-sidebar sidebar-dark-primary elevation-4">
+  <aside th:fragment="mainsidebar" class="main-sidebar sidebar-dark-primary elevation-4 layout-fixed">
     <!-- Brand Logo -->
     <a href="AdminLTE/index3.html" class="brand-link">
       <img src="AdminLTE/dist/img/AdminLTELogo.png"
@@ -83,15 +83,15 @@
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
-                Dashboard
+                Administration
                 <i class="right fas fa-angle-left"></i>
               </p>
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="AdminLTE/index.html" class="nav-link">
+                <a href="../widgets.html" th:href="@{/ab}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Dashboard v1</p>
+                  <p>Anggota Bursa</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -108,22 +108,46 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item">
-            <a href="../widgets.html" th:href="@{/ab}" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
-                Anggota Bursa
+                KSEI Menu
+                <i class="right fas fa-angle-left"></i>
               </p>
             </a>
-          </li>
-          <li class="nav-item">
-            <a href="../widgets.html" th:href="@{/fileftp}" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                File FTP
-                <span class="right badge badge-danger">New</span>
-              </p>
-            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="../widgets.html" th:href="@{/fileftp}" class="nav-link">
+                  <i class="nav-icon fas fa-th"></i>
+                  <p>File List</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="../widgets.html" th:href="@{/allstmtlist}" class="nav-link">
+                  <i class="nav-icon fas fa-th"></i>
+                  <p>Statement List</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="../widgets.html" th:href="@{/allstatlist}" class="nav-link">
+                  <i class="nav-icon fas fa-th"></i>
+                  <p>Static List</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="../widgets.html" th:href="@{/allbalance}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Balance List</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="AdminLTE/index3.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Kirim FTP File</p>
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">

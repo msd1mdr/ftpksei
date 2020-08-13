@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +27,9 @@ import com.mdrscr.ftpksei.properties.KseiConfig;
 @Service
 public class StatementService {
 	
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+			
 	@Autowired
 	private BejStatementStagingRepo bejStmtStgRepo;
 	@Autowired
@@ -60,14 +65,13 @@ public class StatementService {
 	public String sendToKsei () throws IOException {
 
     	Integer recordCounter = new Integer(0);
-    	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATEMENT") + 1;
-		String fileName = "ReactStmt_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
+    	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATEMENT") + 1; 
+		String fileName = "ReactStmt_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
 
-		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + fileName);
+		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir()+"\\" + fileName);
 
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
-		
-	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByFlag("T");
+	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByValdat(strYesterday);
 
 		for (BejStatementStaging stmt : stmts) {
 			recordCounter++;
@@ -91,8 +95,6 @@ public class StatementService {
 	    	printWriter.println(newLine);
 	    	
 	    	statementKseiRepo.save(stmtKsei);
-	    	stmt.setFlag("Y");
-	    	bejStmtStgRepo.save(stmt);
 		}
 		
     	printWriter.close();
@@ -117,4 +119,15 @@ public class StatementService {
 		return fileName;
 	}
 	
+    public List<StatementKsei> getAllStatementKsei (String filename) {
+    	 List<StatementKsei> stmts = statementKseiRepo.findByFileName(filename);
+    	
+    	return stmts;
+    }
+
+    public List<StatementKsei> getAllStatementKsei () {
+   	 List<StatementKsei> stmts = statementKseiRepo.findAll();
+   	
+   	return stmts;
+   }
 }

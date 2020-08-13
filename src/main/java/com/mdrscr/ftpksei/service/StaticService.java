@@ -5,8 +5,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class StaticService {
+
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
 	@Autowired
 	private BejStaticStagingRepo bejStaticStgRepo;
@@ -53,21 +57,18 @@ public class StaticService {
     	stat.setActivitydate(bejstat.getActdate());
     	return stat;
     }
-
-    
-    
+       
     @Transactional
 	public String ftpToKsei () throws IOException {
 		
     	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATIC") + 1;
-		String fileName = "DataStaticInv_BMAN2_" + df.format(new Date()) + "_" + fileCounter + ".fsp";
+		String fileName = "DataStaticInv_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
 
-//		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalDir() + fileName);
-		FileWriter fileWriter = new FileWriter("D:\\Temp\\Ksei\\file1.txt");
+		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + "\\" + fileName);
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
 
-	    List<BejStaticStaging> stats = bejStaticStgRepo.findByFlag("T");
-System.out.println("Ketemu: " + stats.size());
+	    List<BejStaticStaging> stats = bejStaticStgRepo.findByActdate(strYesterday);
+
 	    for (BejStaticStaging stat : stats) {
 			
 	    	StaticKsei statKsei = mapping (stat);
@@ -87,28 +88,25 @@ System.out.println("Ketemu: " + stats.size());
 	    	printWriter.println(statRow);
 	    	
 	    	staticKseiRepo.save(statKsei);
-	    	stat.setFlag("Y");
-	    	bejStaticStgRepo.save(stat);
-
 	    }
 	    
     	printWriter.close();
     	
-//    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "STATIC");
+    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "STATIC");
 
     	// kirim pake ftp
-//    	try {
-//			ftpService.upload(fileName);
-//			fileQ.setSendStatus("SUCCESS");
-//		} catch (JSchException | SftpException e) {
-//			// TODO Auto-generated catch block
-//			fileQ.setSendStatus("ERROR");
-//			fileQ.setErrorMsg("Gagal kirim FTP");
-//			System.out.println("Tidak bisa ftp");
-//			//			e.printStackTrace();
-//		}
+    	try {
+			ftpService.upload(fileName, kseiConfig.getLocalOutbDir());
+			fileQ.setSendStatus("SUCCESS");
+		} catch (JSchException | SftpException e) {
+			// TODO Auto-generated catch block
+			fileQ.setSendStatus("ERROR");
+			fileQ.setErrorMsg("Gagal kirim FTP");
+			System.out.println("Tidak bisa ftp");
+			//			e.printStackTrace();
+		}
     	
-//    	fileTransmisionService.save(fileQ);
+    	fileTransmisionService.save(fileQ);
 		
 		return fileName;
 	}

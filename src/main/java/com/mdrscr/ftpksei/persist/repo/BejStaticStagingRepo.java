@@ -11,5 +11,6 @@ import com.mdrscr.ftpksei.persist.model.BejStaticStaging;
 public interface BejStaticStagingRepo extends JpaRepository<BejStaticStaging, String> {
 	
 	List<BejStaticStaging> findByFlag (String fl);
+	List<BejStaticStaging> findByActdate (String actdate);
 
 }

@@ -2,6 +2,7 @@ package com.mdrscr.ftpksei.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,8 @@ public class KseiResponseService {
 	private StatementKseiRepo stmtKseiRepo;
 	@Autowired
 	private BalanceKseiRepo balanceKseiRepo;
+	@Autowired
+	private ZipService zipService;
 	
     private static final Logger logger = LoggerFactory.getLogger(KseiResponseService.class);
 
@@ -70,10 +73,20 @@ public class KseiResponseService {
 		balanceKseiRepo.save(balanceKsei);		
 	}
 
-	public void getResponseFiles () throws JSchException, SftpException {
+	public List<String> getFiles (String fileNameExpr) throws JSchException, SftpException, IOException {
+		List<String> dwFiles = ftpService.downloadFiles(fileNameExpr);
+		
 		List<String> files = new ArrayList<String>();
-		files = ftpService.download();
+		for (String file : dwFiles) {
+			List<String> extrcFiles = zipService.unzipFile(file);
+			for (String f : extrcFiles) files.add(f);
+		}
+		return files;
+	}
 	
+	public void getResponse (String fileNameExpr) throws JSchException, SftpException, IOException {
+		List<String> files = getFiles(fileNameExpr);
+		
 		for (String filename : files) {
 			File myObj = new File(kseiConfig.getLocalInbDir() + filename);
 	        Scanner myReader;
@@ -89,8 +102,8 @@ public class KseiResponseService {
 			        } else if (data.startsWith("Total Success:")) {
 			        	  parseData = data.substring(15,data.indexOf("Row")-1);
 			        	  totalSuccess = Integer.parseInt(parseData);
-			        } else if (data.startsWith("Total Error:")) {
-			        	  parseData = data.substring(13,data.indexOf("Row")-1);
+			        } else if (data.startsWith("Total Failed:")) {
+			        	  parseData = data.substring(14,data.indexOf("Row")-1);
 			        	  totalError = Integer.parseInt(parseData);
 			        } else if (data.startsWith("Error Detail:")) {
 			        	  break;
@@ -106,19 +119,22 @@ public class KseiResponseService {
 		    	while (myReader.hasNextLine()) {
 		        	String data = myReader.nextLine();
 		        	System.out.println("Data: " + data);
-		        	String[] arrStr = data.split("\\|");
-		        	System.out.println("Extref: " + arrStr[0]);
-		        	System.out.println("Error: " + arrStr[1]);
+		        	if (data.trim().length() > 0) {
+			        	String[] arrStr = data.split("\\|");
+			        	System.out.println("Extref: " + arrStr[0]);
+			        	System.out.println("Error: " + arrStr[1]);
 		        	
-					if (filename.contains("OutDataStaticInv_"))  {
-						setStaticErrorResponse(inputFileName, arrStr[0], arrStr[1]);
-					} else if (filename.contains("OutRecActStmt_"))  {
-						setStatementErrorResponse(inputFileName, arrStr[0], arrStr[1]);
+						if (filename.contains("OutDataStaticInv_"))  {
+							setStaticErrorResponse(inputFileName, arrStr[0], arrStr[1]);
 
-					} else if (filename.contains("OutRecBalance_")) {
-						
-					}
-
+						} else if (filename.contains("OutRecActStmt_"))  {
+							setStatementErrorResponse(inputFileName, arrStr[0], arrStr[1]);
+	
+						} else if (filename.contains("OutRecBalance_")) {
+							setBalanceErrorResponse(inputFileName, arrStr[0], arrStr[1]);
+							
+						}
+		        	}
 		        }
 
 		        myReader.close();

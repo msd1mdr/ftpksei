@@ -17,4 +17,5 @@ public interface FileTransmisionRepo extends JpaRepository<FileTransmision, Long
 	
 	public FileTransmision findByFileName(String fileName);
 
+	public List<FileTransmision> findByValDateAndResponseFileIsNull(String valdate);
 }

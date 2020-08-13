@@ -35,7 +35,8 @@ public class FtpService {
     	return (ChannelSftp) jschSession.openChannel("sftp");
     }
 
-    public List<String> download() 
+    
+    public List<String> downloadFiles(String fileNameExpr) 
     			throws JSchException, SftpException {
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
@@ -45,7 +46,7 @@ public class FtpService {
     	
     	List<String> files = new ArrayList<String>();
     	@SuppressWarnings("unchecked")
-		Vector <LsEntry> rfiles = channelSftp.ls("*.fsp");
+		Vector <LsEntry> rfiles = channelSftp.ls(fileNameExpr);
     	for (LsEntry lsEntry : rfiles) {
     		String fileName = lsEntry.getFilename();
     		System.out.println("Akan ambil file " + fileName);
@@ -70,4 +71,5 @@ public class FtpService {
     	channelSftp.exit();
 
     }
+    
 }
