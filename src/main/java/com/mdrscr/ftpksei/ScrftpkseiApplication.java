@@ -8,13 +8,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class ScrftpkseiApplication extends SpringBootServletInitializer{
+public class ScrftpkseiApplication { // extends SpringBootServletInitializer{
 
 	public static void main(String[] args) {
 		SpringApplication.run(ScrftpkseiApplication.class, args);
 	}
 
-	//untuk digunakan jika menggunakan jndi
+//	untuk digunakan jika menggunakan jndi
 //	@Override
 //	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
 //		// TODO Auto-generated method stub

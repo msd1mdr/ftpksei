@@ -1,8 +1,8 @@
 package com.mdrscr.ftpksei.service;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -59,9 +59,11 @@ public class BalanceService {
 
 		Integer fileCounter = fileTransmisionService.getLastFileNumber("BALANCE") + 1;
 		String fileName = "RecBalance_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
-	
+		System.out.println("namanya " + kseiConfig.getLocalOutbDir() + "\\" + fileName);
 		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + "\\"+ fileName);
-	    PrintWriter printWriter = new PrintWriter(fileWriter);
+		BufferedWriter bw = new BufferedWriter(fileWriter);
+
+//		PrintWriter printWriter = new PrintWriter(fileWriter);
 		
 	    List<Bejacn> balance = bejacnRepo.findAll();
 
@@ -70,32 +72,34 @@ public class BalanceService {
 			BalanceKsei balKsei = mapFrom(bal);
 			balKsei.setFileName(fileName);
 			
-			String newLine = balKsei.getExtref() + "|" +
+			String strBal = balKsei.getExtref() + "|" +
 							 balKsei.getBankcode() + "|" +
 							 balKsei.getAccount() + "|" +
 							 balKsei.getCurcod() + "|" +
 							 balKsei.getValdate() + "|" +
 							 balKsei.getBalance() + "|" ;
 
-	    	printWriter.println(newLine);
+//	    	printWriter.println(newLine);
+	    	bw.write(strBal); bw.newLine();
 	    	balanceKseiRepo.save(balKsei);
 
 		}
 
-    	printWriter.close();
-    	
-    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "BALANCE");
+//    	printWriter.close();
+	    bw.close();
+	    fileWriter.close();
 
+    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "BALANCE");
+    	System.out.println("Akan kirim file " + fileName);
     	// kirim pake ftp
     	try {
 			ftpService.upload(fileName, kseiConfig.getLocalOutbDir());
 			fileQ.setSendStatus("SUCCESS");
 		} catch (JSchException | SftpException e) {
 			// TODO Auto-generated catch block
-			fileQ.setSendStatus("ERROR");
+		fileQ.setSendStatus("ERROR");
 			fileQ.setErrorMsg("Gagal kirim FTP");
 			System.out.println("Tidak bisa ftp");
-			//			e.printStackTrace();
 		}
     	
     	fileTransmisionService.save(fileQ);

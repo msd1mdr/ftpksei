@@ -1,7 +1,6 @@
 package com.mdrscr.ftpksei.controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -68,21 +67,21 @@ public class HomeController {
 		return response;
 	}
 	
-	@GetMapping(value="/unzip")
-	public @ResponseBody String unzip() {
-		String response = "<h2>Unzip Files</h2>";
-		List<String> files = new ArrayList<>();
-		try {
-			files = zipService.unzipFile("D:\\Temp\\KSEI\\KSEIResponse\\responses.zip");
-			for (String file : files) {
-				response = response + "<h3>" + file + "</h3>";
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return response;
-	}
+//	@GetMapping(value="/unzip")
+//	public @ResponseBody String unzip() {
+//		String response = "<h2>Unzip Files</h2>";
+//		List<String> files = new ArrayList<>();
+//		try {
+//			files = zipService.unzipFile("D:\\Temp\\KSEI\\KSEIResponse\\responses.zip");
+//			for (String file : files) {
+//				response = response + "<h3>" + file + "</h3>";
+//			}
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return response;
+//	}
 
 	@GetMapping(value="/download")
 	public @ResponseBody String download() { 

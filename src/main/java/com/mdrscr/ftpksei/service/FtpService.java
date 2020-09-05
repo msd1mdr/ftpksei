@@ -1,11 +1,10 @@
 package com.mdrscr.ftpksei.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 import java.util.Vector;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jcraft.jsch.ChannelSftp;
@@ -22,21 +21,22 @@ public class FtpService {
 	@Autowired
 	private KseiConfig kseiConfig;
   
-    @Value("${scrp.sftp.knownhosts}")
-    private String knownHosts;
+//    @Value("${scrp.sftp.knownhosts}")
+//    private String knownHosts;
 
     public ChannelSftp setupJsch() throws JSchException  {
     	JSch jsch = new JSch();
-    	jsch.setKnownHosts(knownHosts);
+//    	jsch.setKnownHosts(knownHosts);
     	Session jschSession = jsch.getSession(kseiConfig.getFtpUser(), 
     										  kseiConfig.getFtpIpAddr());
+    	jschSession.setConfig("StrictHostKeyChecking", "no");
     	jschSession.setPassword(kseiConfig.getFtpPasswd());
     	jschSession.connect();
     	return (ChannelSftp) jschSession.openChannel("sftp");
     }
 
     
-    public List<String> downloadFiles(String fileNameExpr) 
+    public File[] downloadFiles(String fileNameExpr) 
     			throws JSchException, SftpException {
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
@@ -44,28 +44,35 @@ public class FtpService {
     	channelSftp.lcd(kseiConfig.getLocalInbDir());
     	channelSftp.cd(kseiConfig.getFtpInboundDir()); 
     	
-    	List<String> files = new ArrayList<String>();
+    	File[] dwfiles = new File[0];
+
     	@SuppressWarnings("unchecked")
 		Vector <LsEntry> rfiles = channelSftp.ls(fileNameExpr);
     	for (LsEntry lsEntry : rfiles) {
     		String fileName = lsEntry.getFilename();
     		System.out.println("Akan ambil file " + fileName);
-        	channelSftp.get(fileName, kseiConfig.getLocalInbDir() + fileName);
+        	channelSftp.get(fileName, fileName);
 //        	channelSftp.rm(fileName);
-        	files.add(fileName);
+//        	files.add(fileName);
+        	dwfiles = ArrayUtils.add(dwfiles, new File(kseiConfig.getLocalInbDir()+ "\\"+fileName));
     	}
 
     	channelSftp.disconnect();
     	channelSftp.exit();
-    	return files;
+    	return dwfiles;
     }
         
     public void upload(String fileName, String localDir) 
     				throws JSchException, SftpException {
+    	System.out.println("Akan upload " + localDir + fileName);
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
+    	channelSftp.lcd(localDir);
+    	channelSftp.cd(kseiConfig.getFtpOutboundDir()); 
 
-    	channelSftp.put(localDir + fileName, kseiConfig.getFtpOutboundDir() + fileName);
+    	System.out.println("sudah connect ftp");
+    	channelSftp.put(fileName, fileName);
+    	System.out.println("sudah upload ftp");
 
     	channelSftp.disconnect();
     	channelSftp.exit();

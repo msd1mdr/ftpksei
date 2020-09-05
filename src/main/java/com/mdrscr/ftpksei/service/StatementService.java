@@ -71,6 +71,7 @@ public class StatementService {
 		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir()+"\\" + fileName);
 
 	    PrintWriter printWriter = new PrintWriter(fileWriter);
+    	printWriter.println("Mulai");
 	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByValdat(strYesterday);
 
 		for (BejStatementStaging stmt : stmts) {

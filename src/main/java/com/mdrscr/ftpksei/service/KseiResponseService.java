@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +22,12 @@ import com.mdrscr.ftpksei.persist.repo.BalanceKseiRepo;
 import com.mdrscr.ftpksei.persist.repo.FileTransmisionRepo;
 import com.mdrscr.ftpksei.persist.repo.StatementKseiRepo;
 import com.mdrscr.ftpksei.persist.repo.StaticKseiRepo;
-import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class KseiResponseService {
 
 	@Autowired
 	private FtpService ftpService;
-	@Autowired
-	private KseiConfig kseiConfig;
 	@Autowired
 	private FileTransmisionRepo fileTransmisionRepo;
 	@Autowired
@@ -73,26 +69,25 @@ public class KseiResponseService {
 		balanceKseiRepo.save(balanceKsei);		
 	}
 
-	public List<String> getFiles (String fileNameExpr) throws JSchException, SftpException, IOException {
-		List<String> dwFiles = ftpService.downloadFiles(fileNameExpr);
+	public File[] extractZip (File[] dwFiles) throws IOException {
 		
-		List<String> files = new ArrayList<String>();
-		for (String file : dwFiles) {
-			List<String> extrcFiles = zipService.unzipFile(file);
-			for (String f : extrcFiles) files.add(f);
+		File[] files = new File[0];
+		for (File file : dwFiles) {
+			File[] extrcFiles = zipService.unzipFile(file);
+			files = ArrayUtils.addAll(extrcFiles, files); 
 		}
 		return files;
 	}
 	
 	public void getResponse (String fileNameExpr) throws JSchException, SftpException, IOException {
-		List<String> files = getFiles(fileNameExpr);
+		File[] dwFiles = ftpService.downloadFiles(fileNameExpr);
+		File[] files = extractZip(dwFiles);
 		
-		for (String filename : files) {
-			File myObj = new File(kseiConfig.getLocalInbDir() + filename);
+		for (File file : files) {
 	        Scanner myReader;
 	        
 			try {
-				myReader = new Scanner(myObj);
+				myReader = new Scanner(file);
 		        while (myReader.hasNextLine()) {
 		        	String data = myReader.nextLine();
 			        String parseData = "";
@@ -111,7 +106,7 @@ public class KseiResponseService {
 		        }
 
 		        FileTransmision ft = fileTransmisionRepo.findByFileName(inputFileName);
-		    	ft.setResponseFile(filename);
+		    	ft.setResponseFile(file.getName());
 		    	ft.setResponseSuccess(totalSuccess);
 		    	ft.setResponseError(totalError);
 		        fileTransmisionRepo.save(ft);
@@ -124,13 +119,13 @@ public class KseiResponseService {
 			        	System.out.println("Extref: " + arrStr[0]);
 			        	System.out.println("Error: " + arrStr[1]);
 		        	
-						if (filename.contains("OutDataStaticInv_"))  {
+						if (file.getName().contains("OutDataStaticInv_"))  {
 							setStaticErrorResponse(inputFileName, arrStr[0], arrStr[1]);
 
-						} else if (filename.contains("OutRecActStmt_"))  {
+						} else if (file.getName().contains("OutRecActStmt_"))  {
 							setStatementErrorResponse(inputFileName, arrStr[0], arrStr[1]);
 	
-						} else if (filename.contains("OutRecBalance_")) {
+						} else if (file.getName().contains("OutRecBalance_")) {
 							setBalanceErrorResponse(inputFileName, arrStr[0], arrStr[1]);
 							
 						}

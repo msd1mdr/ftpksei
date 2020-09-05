@@ -1,11 +1,8 @@
 package com.mdrscr.ftpksei.scheduler;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,44 +37,36 @@ public class ScheduledTasks {
     private KseiResponseService kseiResponse;
     
     
-//    @Scheduled(cron="0 50 0 * * ?") // tiap pk 00:50 tiap hari
     @Scheduled(cron="${scrp.cronsched.sendftp}")
     public void ftpOutKsei () {
     	System.out.println("ftpOutKsei started");
     	try {
-			String fileName1 = balanceService.sendToKsei();
-			String fileName2 = statementService.sendToKsei();
-			String fileName3 = staticService.ftpToKsei();
+			balanceService.sendToKsei();
+			statementService.sendToKsei();
+			staticService.ftpToKsei();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			logger.error("IO Error proses ftpOutKsei");
-			e.printStackTrace();
 		}
     }
   
-//    @Scheduled(cron="0 0 5 * * ?") // tiap pk 05:00 tiap hari
     @Scheduled(cron="${scrp.cronsched.getresponse}")
     public void getResponseFile() {
     	try {
 			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
 		} catch (JSchException | SftpException e) {
-			// TODO Auto-generated catch block
 			logger.error("FTP Error proses ftpInKsei");
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			logger.error("IO Zip Error proses ftpInKsei");
-			e.printStackTrace();
 		}
     }
     
-    @Scheduled(fixedDelay = 600000)  //tiap 10 menit coba retry send file jika ada
+//    @Scheduled(fixedDelay = 600000)  //tiap 10 menit coba retry send file jika ada
     public void scheduleTaskWithFixedRate() {
 //        logger.info("Fixed Rate Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now()) );
         retryService.resendFile();
     }
 
-    @Scheduled(cron="0 0 8-20 * * ?")  
+//    @Scheduled(cron="0 0 7-20 * * ?")  
     public void retryGetResponseFile() {
 //        logger.info("Fixed Rate Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now()) );
     	retryService.reTakeFile(strYesterday);

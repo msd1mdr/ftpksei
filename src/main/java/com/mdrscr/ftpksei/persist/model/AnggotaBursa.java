@@ -7,7 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity @Table(name="ANGGOTA_BURSA")
+
+@Entity
+@Table(name="ANGGOTA_BURSA")
 public class AnggotaBursa {
 	
 	@Id @Column(name="KODE_AB")

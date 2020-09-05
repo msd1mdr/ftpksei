@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +19,9 @@ public class ZipService {
 	@Autowired
 	private KseiConfig kseiConfig;
 	
-    public List<String> unzipFile (String fileZip) throws IOException {
+    public File[] unzipFile (File fileZip) throws IOException {
         File destDir = new File(kseiConfig.getLocalInbDir());
-        List<String> extractedFiles = new ArrayList<>();
+        File[] extractedFiles = new File[0];
         byte[] buffer = new byte[1024];
         
         ZipInputStream zis = new ZipInputStream(new FileInputStream(fileZip));
@@ -35,7 +34,7 @@ public class ZipService {
                 fos.write(buffer, 0, len);
             }
             fos.close();
-            extractedFiles.add(newFile.getName());
+            extractedFiles = ArrayUtils.add(extractedFiles, newFile);
             zipEntry = zis.getNextEntry();
         }
         zis.closeEntry();

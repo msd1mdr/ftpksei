@@ -15,11 +15,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Table;
 
 @Entity @Table(name="FILE_TRANSMISION")
-@SequenceGenerator(name="SEQ2", allocationSize=1)
+@SequenceGenerator(name="SEQ1", allocationSize=1)
 public class FileTransmision {
 
 	@Id	
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQ2")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQ1")
 	private Long Id;
 	@Column(name="FILENAME")
 	private String fileName;
