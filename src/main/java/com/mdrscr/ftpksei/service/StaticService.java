@@ -1,8 +1,8 @@
 package com.mdrscr.ftpksei.service;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +28,8 @@ import com.mdrscr.ftpksei.properties.KseiConfig;
 @Service
 public class StaticService {
 
+    private static final Logger logger = LoggerFactory.getLogger(StaticService.class);
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
-    private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
 	@Autowired
 	private BejStaticStagingRepo bejStaticStgRepo;
@@ -60,18 +62,20 @@ public class StaticService {
        
     @Transactional
 	public String ftpToKsei () throws IOException {
-		
+    	Integer recordCounter = new Integer(0);
+        String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+
     	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATIC") + 1;
 		String fileName = "DataStaticInv_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
 
-		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + "\\" + fileName);
-	    PrintWriter printWriter = new PrintWriter(fileWriter);
-    	printWriter.println("Mulai");
+		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + fileName);
+		BufferedWriter bw = new BufferedWriter(fileWriter);
 
 	    List<BejStaticStaging> stats = bejStaticStgRepo.findByActdate(strYesterday);
 
 	    for (BejStaticStaging stat : stats) {
-			
+			recordCounter++;
+		
 	    	StaticKsei statKsei = mapping (stat);
 	    	statKsei.setFileName(fileName);
 	    	statKsei.setCreateTime(LocalDateTime.now());
@@ -86,25 +90,25 @@ public class StaticService {
 							statKsei.getBankcode() + "|" + 
 							statKsei.getActivitydate() + "|" + 
 							statKsei.getActivity() ;
-	    	printWriter.println(statRow);
+	    	bw.write(statRow); bw.newLine();
 	    	
 	    	staticKseiRepo.save(statKsei);
 	    }
 	    
-    	printWriter.close();
+	    bw.close();
+    	fileWriter.close();
     	
     	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "STATIC");
-
+    	fileQ.setValDate(strYesterday);
+    	fileQ.setRecordNumber(recordCounter);
     	// kirim pake ftp
     	try {
 			ftpService.upload(fileName, kseiConfig.getLocalOutbDir());
 			fileQ.setSendStatus("SUCCESS");
 		} catch (JSchException | SftpException e) {
-			// TODO Auto-generated catch block
 			fileQ.setSendStatus("ERROR");
 			fileQ.setErrorMsg("Gagal kirim FTP");
-			System.out.println("Tidak bisa ftp");
-			//			e.printStackTrace();
+			logger.error("Tidak bisa ftp");
 		}
     	
     	fileTransmisionService.save(fileQ);

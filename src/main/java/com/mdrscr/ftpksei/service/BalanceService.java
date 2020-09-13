@@ -1,38 +1,38 @@
 package com.mdrscr.ftpksei.service;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.mdrscr.ftpksei.persist.model.BalanceKsei;
 import com.mdrscr.ftpksei.persist.model.Bejacn;
 import com.mdrscr.ftpksei.persist.model.FileTransmision;
-import com.mdrscr.ftpksei.persist.repo.BalanceKseiRepo;
 import com.mdrscr.ftpksei.persist.repo.BejacnRepo;
 import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class BalanceService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BalanceService.class);
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
-    private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
 	@Autowired
 	private BejacnRepo bejacnRepo;
-	@Autowired
-	private BalanceKseiRepo balanceKseiRepo;
 	@Autowired
 	private FtpService ftpService;
 	@Autowired
@@ -42,69 +42,90 @@ public class BalanceService {
 
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
 
-	public BalanceKsei mapFrom (Bejacn bejacn) {
-		BalanceKsei newbal = new BalanceKsei();
-		newbal.setExtref(df.format(new Date()) + bejacn.getAcctno());
-		newbal.setBankcode("BMAN2");
-		newbal.setAccount(bejacn.getAcctno());
-		newbal.setCurcod("IDR");
-		newbal.setValdate(bejacn.getBjvald());
-		newbal.setBalance(bejacn.getBjcbal());
-		newbal.setNotes("");
-		return newbal;
-	}
+//	public BalanceKsei mapFrom (Bejacn bejacn) {
+//		BalanceKsei newbal = new BalanceKsei();
+//		newbal.setExtref(df.format(new Date()) + bejacn.getAcctno());
+//		newbal.setBankcode("BMAN2");
+//		newbal.setAccount(bejacn.getAcctno());
+//		newbal.setCurcod("IDR");
+//		newbal.setValdate(bejacn.getBjvald());
+//		newbal.setBalance(bejacn.getBjcbal());
+//		newbal.setNotes("");
+//		return newbal;
+//	}
 
 	@Transactional
 	public String sendToKsei () throws IOException {
+	    String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
-		Integer fileCounter = fileTransmisionService.getLastFileNumber("BALANCE") + 1;
-		String fileName = "RecBalance_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
-		System.out.println("namanya " + kseiConfig.getLocalOutbDir() + "\\" + fileName);
-		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + "\\"+ fileName);
-		BufferedWriter bw = new BufferedWriter(fileWriter);
+		List<File> balanceFiles = new ArrayList<File>();
+		Integer fileCounter = fileTransmisionService.getLastFileNumber("BALANCE") ;
+		logger.debug("Cek file number balance: " + fileCounter);
 
-//		PrintWriter printWriter = new PrintWriter(fileWriter);
-		
 	    List<Bejacn> balance = bejacnRepo.findAll();
 
+		File f1 = null;
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+		Integer recordCounter = new Integer(0);
 		for (Bejacn bal : balance) {
-			
-			BalanceKsei balKsei = mapFrom(bal);
-			balKsei.setFileName(fileName);
-			
-			String strBal = balKsei.getExtref() + "|" +
-							 balKsei.getBankcode() + "|" +
-							 balKsei.getAccount() + "|" +
-							 balKsei.getCurcod() + "|" +
-							 balKsei.getValdate() + "|" +
-							 balKsei.getBalance() + "|" ;
+			if (recordCounter++ == 0) {
+				++fileCounter;
+				f1 = new File(kseiConfig.getLocalOutbDir() + 
+						"RecBalance_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp");
+				logger.debug("Akan buat file " + f1.getName());
+				fw = new FileWriter(f1);
+				bw = new BufferedWriter(fw);
+				balanceFiles.add(f1);
+			}
 
-//	    	printWriter.println(newLine);
+			String strBal = df.format(new Date()) + bal.getAcctno() + "|BMAN2|" +
+							bal.getAcctno() + "|IDR|" +
+							bal.getBjvald() + "|" + bal.getBjcbal();
+					
 	    	bw.write(strBal); bw.newLine();
-	    	balanceKseiRepo.save(balKsei);
 
+	    	if (recordCounter == 50000) {
+	    		bw.close();
+	    		fw.close();
+	    		logger.debug("Akan insert filetransmision " + f1.getName() + "_" + fileCounter);
+	    		FileTransmision fileQ = new FileTransmision(f1.getName(), fileCounter, "BALANCE");
+		    	fileQ.setRecordNumber(recordCounter);
+		    	fileQ.setValDate(strYesterday);
+		    	fileQ = fileTransmisionService.save(fileQ);
+		    	logger.debug("Sudah save filetransmision " + fileQ.getId());
+	    		recordCounter = 0;
+	    	}
+	    		
 		}
 
-//    	printWriter.close();
-	    bw.close();
-	    fileWriter.close();
-
-    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "BALANCE");
-    	System.out.println("Akan kirim file " + fileName);
+		if (recordCounter > 0) {
+		    bw.close();
+		    fw.close();
+		    logger.debug("Akan insert file_transmission " + f1.getName() + fileCounter);
+    		FileTransmision fileQ = new FileTransmision(f1.getName(), fileCounter, "BALANCE");
+	    	fileQ.setRecordNumber(recordCounter);
+	    	fileQ.setValDate(strYesterday);
+	    	fileQ = fileTransmisionService.save(fileQ);
+	    	logger.debug("Sudah save filetransmision " + fileQ.getId());
+		}
+	    
     	// kirim pake ftp
-    	try {
-			ftpService.upload(fileName, kseiConfig.getLocalOutbDir());
-			fileQ.setSendStatus("SUCCESS");
-		} catch (JSchException | SftpException e) {
-			// TODO Auto-generated catch block
-		fileQ.setSendStatus("ERROR");
-			fileQ.setErrorMsg("Gagal kirim FTP");
-			System.out.println("Tidak bisa ftp");
+		for (File uploadFile : balanceFiles ) {
+			logger.debug("Akan query filetrans "  + uploadFile.getName()); 
+			FileTransmision ft = fileTransmisionService.getByFileName(uploadFile.getName());
+			try {
+				ftpService.upload(uploadFile.getName(), kseiConfig.getLocalOutbDir());
+				ft.setSendStatus("SUCCESS");
+			} catch (JSchException | SftpException e) {
+				ft.setSendStatus("ERROR");
+				ft.setErrorMsg("Gagal kirim FTP");
+				logger.error("Gagal kirim FTP");
+			}
+			fileTransmisionService.save(ft);
 		}
-    	
-    	fileTransmisionService.save(fileQ);
-		
-		return fileName;
+
+		return "Sukses balance";
 	}
 	
 }

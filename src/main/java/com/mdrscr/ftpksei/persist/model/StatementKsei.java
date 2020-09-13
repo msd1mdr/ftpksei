@@ -11,11 +11,11 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity @Table(name="STATEMENT_KSEI")
-@SequenceGenerator(name="SEQ2", allocationSize=1)
+@SequenceGenerator(name="SEQ1", allocationSize=1)
 public class StatementKsei {
 
 	@Id 
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQ2")
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQ1")
 	private Long Id;
 	private String extref;
 	private String seqnum;
@@ -49,7 +49,21 @@ public class StatementKsei {
 	private String ackNotes;
 	private LocalDateTime ackTime;
 	
-	public StatementKsei () {}
+	public StatementKsei () {
+		this.extref = "";
+		this.seqnum = ""; 
+		this.ac = "";
+		this.curcod = "";
+		this.valdate = "";
+		this.openbal = "";
+		this.statLineExtRef = "";
+		this.trxtype = "";
+		this.dc = "";
+		this.cashVal = "";
+		this.description = "";
+		this.closeBal = "";
+		this.notes = "";
+	}
 
 	public Long getId() {
 		return Id;

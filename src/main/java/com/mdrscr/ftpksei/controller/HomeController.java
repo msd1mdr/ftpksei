@@ -1,6 +1,8 @@
 package com.mdrscr.ftpksei.controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -17,18 +19,14 @@ import org.springframework.web.servlet.ModelAndView;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 import com.mdrscr.ftpksei.persist.model.AnggotaBursa;
-import com.mdrscr.ftpksei.persist.model.BalanceKsei;
-import com.mdrscr.ftpksei.persist.model.FileTransmision;
 import com.mdrscr.ftpksei.persist.model.StatementKsei;
 import com.mdrscr.ftpksei.persist.model.StaticKsei;
 import com.mdrscr.ftpksei.persist.repo.AnggotaBursaRepo;
-import com.mdrscr.ftpksei.persist.repo.BalanceKseiRepo;
-import com.mdrscr.ftpksei.persist.repo.FileTransmisionRepo;
 import com.mdrscr.ftpksei.persist.repo.StaticKseiRepo;
 import com.mdrscr.ftpksei.service.BalanceService;
 import com.mdrscr.ftpksei.service.KseiResponseService;
 import com.mdrscr.ftpksei.service.StatementService;
-import com.mdrscr.ftpksei.service.ZipService;
+import com.mdrscr.ftpksei.service.StaticService;
 
 @Controller
 public class HomeController {
@@ -36,37 +34,21 @@ public class HomeController {
 	@Autowired
 	private StatementService statementService;
 	@Autowired
+	private StaticService staticService;
+	@Autowired
 	private AnggotaBursaRepo anggotaBursaRepo;
-	@Autowired
-	private FileTransmisionRepo fileTransmitRepo;
-	@Autowired
-	private KseiResponseService kseiResponseService;
 	@Autowired
 	private StaticKseiRepo staticKseiRepo;
 	@Autowired
-	private BalanceKseiRepo balanceRepo;
-	@Autowired
-	private ZipService zipService;
-	@Autowired
 	private BalanceService balanceService;
+    @Autowired
+    private KseiResponseService kseiResponse;
+    
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
-	@GetMapping(value="/sendstmt")
-	public @ResponseBody String stmt () {
-		String msg = "x";
-		try {
-			msg = statementService.sendToKsei();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String response = "<h2>STATEMENT</h2>";
-		response += "<p>" + msg + "</p>";
-
-		return response;
-	}
-	
 //	@GetMapping(value="/unzip")
 //	public @ResponseBody String unzip() {
 //		String response = "<h2>Unzip Files</h2>";
@@ -88,7 +70,7 @@ public class HomeController {
 		String response = "<h2>Download Files</h2>";
 		
 		try {
-			kseiResponseService.getResponse("*.zip");
+			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
 		} catch (JSchException e) {
 			logger.error("Gagal connect FTP");
 		} catch (SftpException e) {
@@ -118,29 +100,45 @@ public class HomeController {
 	@GetMapping(value="/sendbal")
 	public @ResponseBody String sendbal() {
 		String response = "<h2>Sending Balance</h2>";
+    	logger.debug("Send balance started");
 		try {
-			String fileName1 = balanceService.sendToKsei();
-			response = response + "<h3>" + fileName1 + "</h3>";
+			balanceService.sendToKsei();
+			response = "<h3>Berhasil</h3>";
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("IO Error proses send Balance");
 			return "gagal";
 		}
 		return response;
-
 	}
 
+	@GetMapping(value="/sendstmt")
+	public @ResponseBody String sendstmt() {
+		String response = "<h2>Sending Statement</h2>";
+    	logger.debug("Send Statement");
+		try {
+			statementService.sendToKsei();
+			response = "<h3>Berhasil</h3>";
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error("IO Error proses send Statement");
+			return "gagal";
+		}
+		return response;
+	}
 		
-		
-	@GetMapping(value="/fileftp")
-	public ModelAndView fileftp () {
-		ModelAndView mv = new ModelAndView();
-		List<FileTransmision> fileList = fileTransmitRepo.findAll();
-		String author = "Frans";
-		mv.addObject("author", author);
-		mv.addObject("fileList", fileList);
-		mv.setViewName("fileksei");
-		return mv;
+	@GetMapping(value="/sendstat")
+	public @ResponseBody String sendstat() {
+		String response = "<h2>Sending Static</h2>";
+    	logger.debug("Send Static started");
+		try {
+			staticService.ftpToKsei();
+			response = "<h3>Berhasil</h3>";
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error("IO Error proses send Static");
+			return "gagal";
+		}
+		return response;
 	}
 
 	@GetMapping(value="/stmtlist")
@@ -173,24 +171,6 @@ public class HomeController {
 		return mv;
 	}
 
-	@GetMapping(value="/allbalance")
-	public ModelAndView allBalance() {
-		ModelAndView mv = new ModelAndView();
-		List<BalanceKsei> bals = balanceRepo.findAll();
-		mv.addObject("bals", bals);
-		mv.addObject("filename", "*");
-		mv.setViewName("balancelist");
-		return mv;
-	}
-
-	@GetMapping(value="/sendftp")
-	public ModelAndView getsendftp (@RequestParam(name="id") String abId) {
-		AnggotaBursa ab = anggotaBursaRepo.findById(abId).orElse(new AnggotaBursa());
-		ModelAndView mv = new ModelAndView();
-		mv.addObject("ab", ab);
-		mv.setViewName("anggotabursa_form");
-		return mv;
-	}
 
 	@GetMapping(value="/abform")
 	public ModelAndView anggotaBursaForm (@RequestParam(name="id") String abId) {
@@ -213,7 +193,14 @@ public class HomeController {
 		mv.addObject("abList", abList);
 		mv.setViewName("anggotabursa");
 		return mv;
+	}
 
+	@GetMapping(value="/test")
+	public @ResponseBody String test () {
+		String msg = "x";
+		String response = "<h2>Test sukses</h2>";
+
+		return response;
 	}
 
 }

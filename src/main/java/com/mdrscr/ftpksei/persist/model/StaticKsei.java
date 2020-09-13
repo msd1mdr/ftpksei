@@ -3,13 +3,19 @@ package com.mdrscr.ftpksei.persist.model;
 import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity @Table(name="STATIC_KSEI")
+@SequenceGenerator(name="SEQ1", allocationSize=1)
 public class StaticKsei {
 
 	@Id
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQ1")
+	private Long Id;
 	private String extref;
 	private String participantid;
 	private String participantname;

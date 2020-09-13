@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Vector;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class FtpService {
+	
+    private static final Logger logger = LoggerFactory.getLogger(FtpService.class);
 
 	@Autowired
 	private KseiConfig kseiConfig;
@@ -43,18 +47,24 @@ public class FtpService {
 
     	channelSftp.lcd(kseiConfig.getLocalInbDir());
     	channelSftp.cd(kseiConfig.getFtpInboundDir()); 
-    	
+
+    	System.out.println("Siap download dari " + channelSftp.pwd());
+		System.out.println("Siap download ke " + channelSftp.lpwd());
+
     	File[] dwfiles = new File[0];
 
+    	logger.debug("fileNameExpr: " + fileNameExpr);
     	@SuppressWarnings("unchecked")
 		Vector <LsEntry> rfiles = channelSftp.ls(fileNameExpr);
+    	logger.info("ls files " + rfiles.size());
     	for (LsEntry lsEntry : rfiles) {
     		String fileName = lsEntry.getFilename();
-    		System.out.println("Akan ambil file " + fileName);
+    		System.out.println("Akan taruh file " + fileName);
         	channelSftp.get(fileName, fileName);
+
 //        	channelSftp.rm(fileName);
 //        	files.add(fileName);
-        	dwfiles = ArrayUtils.add(dwfiles, new File(kseiConfig.getLocalInbDir()+ "\\"+fileName));
+        	dwfiles = ArrayUtils.add(dwfiles, new File(kseiConfig.getLocalInbDir()+fileName));
     	}
 
     	channelSftp.disconnect();
@@ -69,7 +79,8 @@ public class FtpService {
     	channelSftp.connect();
     	channelSftp.lcd(localDir);
     	channelSftp.cd(kseiConfig.getFtpOutboundDir()); 
-
+    	logger.info("Sudah cd ke " + kseiConfig.getFtpOutboundDir());
+    	
     	System.out.println("sudah connect ftp");
     	channelSftp.put(fileName, fileName);
     	System.out.println("sudah upload ftp");

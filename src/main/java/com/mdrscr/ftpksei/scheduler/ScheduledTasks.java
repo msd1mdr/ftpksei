@@ -22,7 +22,7 @@ import com.mdrscr.ftpksei.service.StaticService;
 @Component
 public class ScheduledTasks {
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/YYYY"); 
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
     private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
     @Autowired
@@ -39,7 +39,7 @@ public class ScheduledTasks {
     
     @Scheduled(cron="${scrp.cronsched.sendftp}")
     public void ftpOutKsei () {
-    	System.out.println("ftpOutKsei started");
+    	logger.info("FtpOutKsei started");
     	try {
 			balanceService.sendToKsei();
 			statementService.sendToKsei();
@@ -51,6 +51,7 @@ public class ScheduledTasks {
   
     @Scheduled(cron="${scrp.cronsched.getresponse}")
     public void getResponseFile() {
+    	logger.info("getResponseFile started");
     	try {
 			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
 		} catch (JSchException | SftpException e) {
@@ -60,16 +61,16 @@ public class ScheduledTasks {
 		}
     }
     
-//    @Scheduled(fixedDelay = 600000)  //tiap 10 menit coba retry send file jika ada
+//    @Scheduled(fixedDelay = 120000)  //tiap 2 menit coba retry send file jika ada
     public void scheduleTaskWithFixedRate() {
-//        logger.info("Fixed Rate Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now()) );
-        retryService.resendFile();
+        logger.info("Scheduler with fixedDelay=6000");
+//        retryService.resendFile();
     }
 
-//    @Scheduled(cron="0 0 7-20 * * ?")  
+//    @Scheduled(cron = "0 0 * * * ?")
     public void retryGetResponseFile() {
-//        logger.info("Fixed Rate Task :: Execution Time - {}", dateTimeFormatter.format(LocalDateTime.now()) );
-    	retryService.reTakeFile(strYesterday);
+        logger.info("Test cron 0 0 * * * ?" );
+//    	retryService.reTakeFile(strYesterday);
     }
 
 

@@ -40,14 +40,6 @@ public class BejStatementStaging {
 	private String trnref;
 	@Column(name="FLAG")
 	private String flag;
-	@Column(name="KODE_AB")
-	private String kode_ab;
-	@Column(name="AB_FTP_FL")
-	private String ab_ftp_fl;
-	@Column(name="AB_EMAIL_FL")
-	private String ab_email_fl;
-	@Column(name="AB_WS_FL")
-	private String ab_ws_fl;
 	
 	public String getExtref() {
 		return extref;
@@ -91,30 +83,7 @@ public class BejStatementStaging {
 	public void setFlag(String flag) {
 		this.flag = flag;
 	}
-	public String getKode_ab() {
-		return kode_ab;
-	}
-	public void setKode_ab(String kode_ab) {
-		this.kode_ab = kode_ab;
-	}
-	public String getAb_ftp_fl() {
-		return ab_ftp_fl;
-	}
-	public void setAb_ftp_fl(String ab_ftp_fl) {
-		this.ab_ftp_fl = ab_ftp_fl;
-	}
-	public String getAb_email_fl() {
-		return ab_email_fl;
-	}
-	public void setAb_email_fl(String ab_email_fl) {
-		this.ab_email_fl = ab_email_fl;
-	}
-	public String getAb_ws_fl() {
-		return ab_ws_fl;
-	}
-	public void setAb_ws_fl(String ab_ws_fl) {
-		this.ab_ws_fl = ab_ws_fl;
-	}
+
 	public String getBankId() {
 		return bankId;
 	}
