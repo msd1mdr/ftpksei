@@ -3,26 +3,16 @@ package com.mdrscr.ftpksei.controller;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
-import com.mdrscr.ftpksei.persist.model.AnggotaBursa;
-import com.mdrscr.ftpksei.persist.model.StatementKsei;
-import com.mdrscr.ftpksei.persist.model.StaticKsei;
-import com.mdrscr.ftpksei.persist.repo.AnggotaBursaRepo;
-import com.mdrscr.ftpksei.persist.repo.StaticKseiRepo;
 import com.mdrscr.ftpksei.service.BalanceService;
 import com.mdrscr.ftpksei.service.KseiResponseService;
 import com.mdrscr.ftpksei.service.StatementService;
@@ -35,10 +25,6 @@ public class HomeController {
 	private StatementService statementService;
 	@Autowired
 	private StaticService staticService;
-	@Autowired
-	private AnggotaBursaRepo anggotaBursaRepo;
-	@Autowired
-	private StaticKseiRepo staticKseiRepo;
 	@Autowired
 	private BalanceService balanceService;
     @Autowired
@@ -86,16 +72,16 @@ public class HomeController {
 		return response;
 	}
 
-	@GetMapping(value="/ab")
-	public ModelAndView anggotaBursa () {
-		ModelAndView mv = new ModelAndView();
-		List<AnggotaBursa> abList = anggotaBursaRepo.findAll();
-		String author = "Frans";
-		mv.addObject("author", author);
-		mv.addObject("abList", abList);
-		mv.setViewName("anggotabursa");
-		return mv;
-	}
+//	@GetMapping(value="/ab")
+//	public ModelAndView anggotaBursa () {
+//		ModelAndView mv = new ModelAndView();
+//		List<AnggotaBursa> abList = anggotaBursaRepo.findAll();
+//		String author = "Frans";
+//		mv.addObject("author", author);
+//		mv.addObject("abList", abList);
+//		mv.setViewName("anggotabursa");
+//		return mv;
+//	}
 
 	@GetMapping(value="/sendbal")
 	public @ResponseBody String sendbal() {
@@ -141,59 +127,59 @@ public class HomeController {
 		return response;
 	}
 
-	@GetMapping(value="/stmtlist")
-	public ModelAndView statementList (@RequestParam(name="filename") String filename) {
-		ModelAndView mv = new ModelAndView();
-		List<StatementKsei> stmts = statementService.getAllStatementKsei(filename);
-		mv.addObject("stmts", stmts);
-		mv.addObject("filename", filename);
-		mv.setViewName("statementlist");
-		return mv;
-	}
+//	@GetMapping(value="/stmtlist")
+//	public ModelAndView statementList (@RequestParam(name="filename") String filename) {
+//		ModelAndView mv = new ModelAndView();
+//		List<StatementKsei> stmts = statementService.getAllStatementKsei(filename);
+//		mv.addObject("stmts", stmts);
+//		mv.addObject("filename", filename);
+//		mv.setViewName("statementlist");
+//		return mv;
+//	}
 
-	@GetMapping(value="/allstmtlist")
-	public ModelAndView allStatement() {
-		ModelAndView mv = new ModelAndView();
-		List<StatementKsei> stmts = statementService.getAllStatementKsei();
-		mv.addObject("stmts", stmts);
-		mv.addObject("filename", "*");
-		mv.setViewName("statementlist");
-		return mv;
-	}
+//	@GetMapping(value="/allstmtlist")
+//	public ModelAndView allStatement() {
+//		ModelAndView mv = new ModelAndView();
+//		List<StatementKsei> stmts = statementService.getAllStatementKsei();
+//		mv.addObject("stmts", stmts);
+//		mv.addObject("filename", "*");
+//		mv.setViewName("statementlist");
+//		return mv;
+//	}
 
-	@GetMapping(value="/allstatlist")
-	public ModelAndView allStatic() {
-		ModelAndView mv = new ModelAndView();
-		List<StaticKsei> stats = staticKseiRepo.findAll();
-		mv.addObject("stats", stats);
-		mv.addObject("filename", "*");
-		mv.setViewName("staticlist");
-		return mv;
-	}
+//	@GetMapping(value="/allstatlist")
+//	public ModelAndView allStatic() {
+//		ModelAndView mv = new ModelAndView();
+//		List<StaticKsei> stats = staticKseiRepo.findAll();
+//		mv.addObject("stats", stats);
+//		mv.addObject("filename", "*");
+//		mv.setViewName("staticlist");
+//		return mv;
+//	}
 
 
-	@GetMapping(value="/abform")
-	public ModelAndView anggotaBursaForm (@RequestParam(name="id") String abId) {
-		AnggotaBursa ab = anggotaBursaRepo.findById(abId).orElse(new AnggotaBursa());
-		ModelAndView mv = new ModelAndView();
-		mv.addObject("ab", ab);
-		mv.setViewName("anggotabursa_form");
-		return mv;
-	}
+//	@GetMapping(value="/abform")
+//	public ModelAndView anggotaBursaForm (@RequestParam(name="id") String abId) {
+//		AnggotaBursa ab = anggotaBursaRepo.findById(abId).orElse(new AnggotaBursa());
+//		ModelAndView mv = new ModelAndView();
+//		mv.addObject("ab", ab);
+//		mv.setViewName("anggotabursa_form");
+//		return mv;
+//	}
 
-	@PostMapping(value="/abform")
-	public ModelAndView anggotaBursaSubmit (@ModelAttribute AnggotaBursa ab) {
-		System.out.println("Disini 1");
-		anggotaBursaRepo.save(ab);
-		// call method this.anggotaBursa
-		ModelAndView mv = new ModelAndView();
-		List<AnggotaBursa> abList = anggotaBursaRepo.findAll();
-		String author = "Frans";
-		mv.addObject("author", author);
-		mv.addObject("abList", abList);
-		mv.setViewName("anggotabursa");
-		return mv;
-	}
+//	@PostMapping(value="/abform")
+//	public ModelAndView anggotaBursaSubmit (@ModelAttribute AnggotaBursa ab) {
+//		System.out.println("Disini 1");
+//		anggotaBursaRepo.save(ab);
+//		// call method this.anggotaBursa
+//		ModelAndView mv = new ModelAndView();
+//		List<AnggotaBursa> abList = anggotaBursaRepo.findAll();
+//		String author = "Frans";
+//		mv.addObject("author", author);
+//		mv.addObject("abList", abList);
+//		mv.setViewName("anggotabursa");
+//		return mv;
+//	}
 
 	@GetMapping(value="/test")
 	public @ResponseBody String test () {

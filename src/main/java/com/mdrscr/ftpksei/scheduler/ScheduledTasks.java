@@ -23,7 +23,6 @@ import com.mdrscr.ftpksei.service.StaticService;
 public class ScheduledTasks {
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
-    private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
     @Autowired
     private RetryService retryService;
@@ -51,6 +50,8 @@ public class ScheduledTasks {
   
     @Scheduled(cron="${scrp.cronsched.getresponse}")
     public void getResponseFile() {
+        String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+
     	logger.info("getResponseFile started");
     	try {
 			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
