@@ -85,7 +85,7 @@ public class StatementService {
 			if (recordCounter++ == 0) {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 
-						"ReactStmt_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp");
+						"RecActStmt_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp");
 				logger.debug("Akan buat file " + f1.getName());
 				fw = new FileWriter(f1);
 				bw = new BufferedWriter(fw);
