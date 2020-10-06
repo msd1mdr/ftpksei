@@ -69,6 +69,8 @@ public class BalanceService {
 		BufferedWriter bw = null;
 		Integer recordCounter = new Integer(0);
 		for (Bejacn bal : balance) {
+			if (bal.getBjvald().trim().equals("0")) continue;
+			
 			if (recordCounter++ == 0) {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 
