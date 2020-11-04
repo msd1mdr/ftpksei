@@ -56,7 +56,8 @@ public class HomeController {
 		String response = "<h2>Download Files</h2>";
 		
 		try {
-			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
+//			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
+			kseiResponse.getResponseFile();
 		} catch (JSchException e) {
 			logger.error("Gagal connect FTP");
 		} catch (SftpException e) {
@@ -66,22 +67,9 @@ public class HomeController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-//		ftpService.download("/home/tomcat/Source_DCV/inbnd/", "D:\\Temp\\KSEI\\");
-		
 		return response;
 	}
 
-//	@GetMapping(value="/ab")
-//	public ModelAndView anggotaBursa () {
-//		ModelAndView mv = new ModelAndView();
-//		List<AnggotaBursa> abList = anggotaBursaRepo.findAll();
-//		String author = "Frans";
-//		mv.addObject("author", author);
-//		mv.addObject("abList", abList);
-//		mv.setViewName("anggotabursa");
-//		return mv;
-//	}
 
 	@GetMapping(value="/sendbal")
 	public @ResponseBody String sendbal() {

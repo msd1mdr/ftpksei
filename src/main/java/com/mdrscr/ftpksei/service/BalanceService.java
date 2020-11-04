@@ -57,6 +57,7 @@ public class BalanceService {
 	@Transactional
 	public String sendToKsei () throws IOException {
 	    String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+	    String strToday = dtf.format(LocalDate.now());
 
 		List<File> balanceFiles = new ArrayList<File>();
 		Integer fileCounter = fileTransmisionService.getLastFileNumber("BALANCE") ;
@@ -74,7 +75,7 @@ public class BalanceService {
 			if (recordCounter++ == 0) {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 
-						"RecBalance_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp");
+						"RecBalance_BMAN2_" + strToday + "_" + String.format("%02d", fileCounter) + ".fsp");
 				logger.debug("Akan buat file " + f1.getName());
 				fw = new FileWriter(f1);
 				bw = new BufferedWriter(fw);
@@ -117,7 +118,7 @@ public class BalanceService {
 			logger.debug("Akan query filetrans "  + uploadFile.getName()); 
 			FileTransmision ft = fileTransmisionService.getByFileName(uploadFile.getName());
 			try {
-				ftpService.upload(uploadFile.getName(), kseiConfig.getLocalOutbDir());
+				ftpService.upload(uploadFile.getName(), kseiConfig.getLocalOutbDir(), kseiConfig.getBalRmtoutdir());
 				ft.setSendStatus("SUCCESS");
 			} catch (JSchException | SftpException e) {
 				ft.setSendStatus("ERROR");

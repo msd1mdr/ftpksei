@@ -31,9 +31,7 @@ public class FileTransmisionService {
 		List<FileTransmision> files = fileTransmisionRepo.findBySubModulAndValDateOrderByDailyCounterDesc(subModul, strYesterday);
 		logger.debug("Jumlah filetransmistion: " + files.size());
 		Integer lastNumber = new Integer(0);
-		if (files.size() > 0) {
-			lastNumber = files.get(0).getDailyCounter();
-		}
+		if (files.size() > 0) lastNumber = files.get(0).getDailyCounter();
 		return lastNumber;
 	}
 	

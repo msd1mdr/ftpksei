@@ -1,6 +1,8 @@
 package com.mdrscr.ftpksei.service;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Vector;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -48,7 +50,7 @@ public class FtpService {
     	channelSftp.lcd(kseiConfig.getLocalInbDir());
     	channelSftp.cd(kseiConfig.getFtpInboundDir()); 
 
-    	System.out.println("Siap download dari " + channelSftp.pwd());
+    	System.out.print("Siap download dari " + channelSftp.pwd());
 		System.out.println("Siap download ke " + channelSftp.lpwd());
 
     	File[] dwfiles = new File[0];
@@ -71,15 +73,51 @@ public class FtpService {
     	channelSftp.exit();
     	return dwfiles;
     }
-        
-    public void upload(String fileName, String localDir) 
+
+    @SuppressWarnings("unchecked")
+	public Optional<File> downloadFile (String fileName, String msgType) throws SftpException, JSchException {
+//		ChannelSftp channelSftp = new ChannelSftp();
+
+		ChannelSftp channelSftp = setupJsch();
+		channelSftp.connect();
+	
+		channelSftp.lcd(kseiConfig.getLocalInbDir());
+		if (msgType.equals("STATEMENT")) channelSftp.cd(kseiConfig.getStmtRmtoutdir());
+		else if (msgType.equals("STATIC")) channelSftp.cd(kseiConfig.getStatRmtoutdir());
+		else if (msgType.equals("BALANCE")) channelSftp.cd(kseiConfig.getBalRmtoutdir());
+		
+		@SuppressWarnings("unchecked")
+		Vector<LsEntry> rfiles = new Vector<LsEntry>(Arrays.asList());
+		try {
+			rfiles = channelSftp.ls(fileName);
+		} catch (SftpException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Error ls");
+			logger.warn("ls tidak dapat " + fileName);
+			//	e.printStackTrace();
+		}
+
+		if (rfiles.size() > 0) {
+			System.out.println("Akan download file " + fileName);
+			channelSftp.get(fileName, fileName);
+		}
+
+		channelSftp.disconnect();
+		channelSftp.exit();
+		
+		if (rfiles.size() > 0) 
+			return Optional.of(new File(kseiConfig.getLocalInbDir()+fileName));
+		else return Optional.empty();
+	}
+
+    public void upload(String fileName, String localDir, String remoteDir) 
     				throws JSchException, SftpException {
     	System.out.println("Akan upload " + localDir + fileName);
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
     	channelSftp.lcd(localDir);
-    	channelSftp.cd(kseiConfig.getFtpOutboundDir()); 
-    	logger.info("Sudah cd ke " + kseiConfig.getFtpOutboundDir());
+//    	channelSftp.cd(kseiConfig.getFtpOutboundDir()); 
+    	channelSftp.cd(remoteDir); 
     	
     	System.out.println("sudah connect ftp");
     	channelSftp.put(fileName, fileName);

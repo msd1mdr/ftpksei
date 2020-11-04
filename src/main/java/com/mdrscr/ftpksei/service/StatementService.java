@@ -68,11 +68,13 @@ public class StatementService {
     @Transactional
 	public String sendToKsei () throws IOException {
         String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+        String strToday = dtf.format(LocalDate.now());
 
 //    	Integer recordCounter = new Integer(0);
 		List<File> statementFiles = new ArrayList<File>();
     	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATEMENT"); 
-		String fileName = "RecActStmt_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
+//		String fileName = "RecActStmt_BMAN2_" + strToday + "_" + String.format("%02d", fileCounter) + ".fsp";
+//		String fileName = "RecActStmt_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
 
 	    List<BejStatementStaging> stmts = bejStmtStgRepo.findByValdat(strYesterday);
 
@@ -82,11 +84,10 @@ public class StatementService {
 		Integer recordCounter = new Integer(0);
 
 		for (BejStatementStaging stmt : stmts) {
-//			recordCounter++;
 			if (recordCounter++ == 0) {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 
-						"RecActStmt_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp");
+						"RecActStmt_BMAN2_" + strToday + "_" + String.format("%02d", fileCounter) + ".fsp");
 				logger.debug("Akan buat file " + f1.getName());
 				fw = new FileWriter(f1);
 				bw = new BufferedWriter(fw);
@@ -94,7 +95,7 @@ public class StatementService {
 			}
 
 			StatementKsei stmtKsei = mapping(stmt);
-			stmtKsei.setFileName(fileName);
+			stmtKsei.setFileName(f1.getName());
 			stmtKsei.setCreateTime(LocalDateTime.now());
 			
 			String notes = "";
@@ -113,7 +114,6 @@ public class StatementService {
 						stmtKsei.getCloseBal()  + "|" +
 						notes;
 
-//	    	System.out.println("Record: " + strLine);
 	    	if (!(null==strLine)) {
 	    		bw.write(strLine); bw.newLine();
 	    	}
@@ -125,7 +125,6 @@ public class StatementService {
 	    		FileTransmision fileQ = new FileTransmision(f1.getName(), fileCounter, "STATEMENT");
 		    	fileQ.setValDate(strYesterday);
 		    	fileQ.setRecordNumber(recordCounter);
-		    	fileQ.setValDate(strYesterday);
 		    	fileTransmisionService.save(fileQ);
 	    		recordCounter = 0;
 	    	}
@@ -137,22 +136,17 @@ public class StatementService {
 		    fw.close();
 		    logger.debug("Akan insert file_transmission " + f1.getName() + fileCounter);
     		FileTransmision fileQ = new FileTransmision(f1.getName(), fileCounter, "STATEMENT");
-	    	fileQ.setValDate(strYesterday);
 	    	fileQ.setRecordNumber(recordCounter);
 	    	fileQ.setValDate(strYesterday);
 	    	fileTransmisionService.save(fileQ);
 		}
-    	
-	    System.out.println("Akan insert filetransmision: " + recordCounter);
-    	FileTransmision fileQ = new FileTransmision(fileName, fileCounter, "STATEMENT");
-    	fileQ.setRecordNumber(recordCounter);
     	
     	// kirim pake ftp
 		for (File uploadFile : statementFiles ) {
 			logger.debug("Akan query filetrans "  + uploadFile.getName()); 
 			FileTransmision ft = fileTransmisionService.getByFileName(uploadFile.getName());
 			try {
-				ftpService.upload(uploadFile.getName(), kseiConfig.getLocalOutbDir());
+				ftpService.upload(uploadFile.getName(), kseiConfig.getLocalOutbDir(), kseiConfig.getStmtRmtoutdir());
 				ft.setSendStatus("SUCCESS");
 			} catch (JSchException | SftpException e) {
 				ft.setSendStatus("ERROR");
@@ -162,7 +156,7 @@ public class StatementService {
 			fileTransmisionService.save(ft);
 		}
 		
-		return fileName;
+		return f1.getName();
 	}
 	
     public List<StatementKsei> getAllStatementKsei (String filename) {

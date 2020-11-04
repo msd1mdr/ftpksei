@@ -1,6 +1,5 @@
 package com.mdrscr.ftpksei.service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,8 +19,6 @@ public class RetryService {
 	@Autowired
 	private FtpService ftpService;
 	@Autowired
-	private KseiResponseService responseService;
-	@Autowired
 	private KseiConfig kseiConfig;
 	
 	public void resendFile () {
@@ -30,8 +27,13 @@ public class RetryService {
 		
 		for (FileTransmision file1 : files) {
 			file1.setSendTime(LocalDateTime.now());
+			String outDir = "";
+			if (file1.getSubModul().equals("STATEMENT")) outDir = kseiConfig.getStmtRmtoutdir();
+			else if (file1.getSendMethod().equals("STATIC")) outDir = kseiConfig.getStatRmtoutdir();
+			else if (file1.getSendMethod().equals("BALANCE")) outDir = kseiConfig.getBalRmtoutdir();
+
 			try {
-				ftpService.upload(file1.getFileName(), kseiConfig.getLocalOutbDir());
+				ftpService.upload(file1.getFileName(), kseiConfig.getLocalOutbDir(), outDir);
 				file1.setSendStatus("SUCCESS");
 			} catch (JSchException | SftpException e) {
 				// TODO Auto-generated catch block
@@ -44,15 +46,4 @@ public class RetryService {
 		}
 	}
 	
-	public void reTakeFile (String strYesterday) {
-		List<FileTransmision> files = fileTransmisionService.getResponseFileIsNull(strYesterday);
-		for (FileTransmision file : files) {
-			try {
-				responseService.getResponse("*" + file.getFileName().replace("fsp", "zip"));
-			} catch (JSchException | SftpException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
 }

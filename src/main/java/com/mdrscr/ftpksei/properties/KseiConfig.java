@@ -26,6 +26,13 @@ public class KseiConfig {
 	private String ftpInboundDir;
 	private String localOutbDir;
 	private String localInbDir;
+	private String stmtRmtoutdir;
+	private String stmtRmtresdir;
+	private String statRmtoutdir;
+	private String statRmtresdir;
+	private String balRmtoutdir;
+	private String balRmtresdir;
+
 
 	@PostConstruct
 	public void init() {
@@ -117,6 +124,70 @@ public class KseiConfig {
 	public void setLocalInbDir(String localInbDir) {
 		this.localInbDir = localInbDir;
 	}
+
+
+	public String getStmtRmtoutdir() {
+		return stmtRmtoutdir;
+	}
+
+
+	public void setStmtRmtoutdir(String stmtRmtoutdir) {
+		this.stmtRmtoutdir = stmtRmtoutdir;
+	}
+
+
+	public String getStatRmtoutdir() {
+		return statRmtoutdir;
+	}
+
+
+	public void setStatRmtoutdir(String statRmtoutdir) {
+		this.statRmtoutdir = statRmtoutdir;
+	}
+
+
+	public String getBalRmtoutdir() {
+		return balRmtoutdir;
+	}
+
+
+	public void setBalRmtoutdir(String balRmtoutdir) {
+		this.balRmtoutdir = balRmtoutdir;
+	}
+
+
+	public String getStmtRmtresdir() {
+		return stmtRmtresdir;
+	}
+
+
+	public void setStmtRmtresdir(String stmtRmtresdir) {
+		this.stmtRmtresdir = stmtRmtresdir;
+	}
+
+
+	public String getStatRmtresdir() {
+		return statRmtresdir;
+	}
+
+
+	public void setStatRmtresdir(String statRmtresdir) {
+		this.statRmtresdir = statRmtresdir;
+	}
+
+
+	public String getBalRmtresdir() {
+		return balRmtresdir;
+	}
+
+
+	public void setBalRmtresdir(String balRmtresdir) {
+		this.balRmtresdir = balRmtresdir;
+	}
+
+
+
+
 
 	
 }

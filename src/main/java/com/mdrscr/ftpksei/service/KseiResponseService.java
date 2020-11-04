@@ -3,11 +3,15 @@ package com.mdrscr.ftpksei.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,7 @@ import com.jcraft.jsch.SftpException;
 import com.mdrscr.ftpksei.persist.model.FileTransmision;
 import com.mdrscr.ftpksei.persist.model.StatementKsei;
 import com.mdrscr.ftpksei.persist.model.StaticKsei;
-import com.mdrscr.ftpksei.persist.repo.FileTransmisionRepo;
+//import com.mdrscr.ftpksei.persist.repo.FileTransmisionRepo;
 import com.mdrscr.ftpksei.persist.repo.StatementKseiRepo;
 import com.mdrscr.ftpksei.persist.repo.StaticKseiRepo;
 
@@ -37,6 +41,7 @@ public class KseiResponseService {
 	private ZipService zipService;
 	
     private static final Logger logger = LoggerFactory.getLogger(KseiResponseService.class);
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
 
 	private int totalSuccess;
 	private int totalError;
@@ -66,6 +71,7 @@ public class KseiResponseService {
 //		balanceKseiRepo.save(balanceKsei);		
 //	}
 
+
 	public File[] extractZip (File[] dwFiles) throws IOException {
 		
 		File[] files = new File[0];
@@ -76,74 +82,80 @@ public class KseiResponseService {
 		return files;
 	}
 	
-	public void getResponse (String fileNameExpr) throws JSchException, SftpException, IOException {
-		logger.debug("getResponse()) start");
-		File[] dwFiles = ftpService.downloadFiles(fileNameExpr);
-        logger.debug("getResponse(): download " + dwFiles.length + " file.");
-		File[] files = extractZip(dwFiles);
-        logger.debug("getResponse(): extract " + files.length + " file.");
-		
-		for (File file : files) {
-	        Scanner myReader;
-	        logger.debug("baca file " + file.getName());
-			try {
-				myReader = new Scanner(file);
-		        while (myReader.hasNextLine()) {
-		        	String data = myReader.nextLine();
-		        	if (data.trim().length()>0) System.out.println(data);
-			        String parseData = "";
-			        if (data.startsWith("Input File Name:")) {
-			        	  inputFileName = data.substring(17);
-//			        	  System.out.println("InputFileName: " + inputFileName);
-			        } else if (data.startsWith("Total Success:")) {
-			        	  parseData = data.substring(15,data.indexOf("Row")-1);
-			        	  totalSuccess = Integer.parseInt(parseData);
-			        } else if (data.startsWith("Total Failed:")) {
-			        	  parseData = data.substring(14,data.indexOf("Row")-1);
-			        	  totalError = Integer.parseInt(parseData);
-			        } else if (data.startsWith("Error Detail:")) {
-			        	  break;
+	
+	public void getResponseFile () throws JSchException, SftpException, IOException {
+	    String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+	    
+		List<FileTransmision> fts = fileTransmisionService.getResponseFileIsNull(strYesterday);
+		for (FileTransmision ft : fts) {
+			String filename = StringUtils.replace(ft.getFileName(), "fsp", "zip");
+			System.out.println("Cari file " + "Out".concat(filename));
+			
+			Optional<File> dwFile = ftpService.downloadFile("Out".concat(filename), ft.getSubModul());
+			File[] extractFiles = new File[0];
+	        if (dwFile.isPresent()) {
+				System.out.print("dapat file " + dwFile.get());
+				extractFiles = zipService.unzipFile(dwFile.get());
+	        }
+	        
+			for (File outFile : extractFiles) {
+		        Scanner myReader;
+				try {
+					myReader = new Scanner(outFile);
+			        while (myReader.hasNextLine()) {
+			        	String data = myReader.nextLine();
+			        	if (data.trim().length()>0) System.out.println(data);
+				        String parseData = "";
+				        if (data.startsWith("Input File Name:")) {
+				        	  inputFileName = data.substring(17);
+				        } else if (data.startsWith("Total Success:")) {
+				        	  parseData = data.substring(15,data.indexOf("Row")-1);
+				        	  totalSuccess = Integer.parseInt(parseData);
+				        } else if (data.startsWith("Total Failed:")) {
+				        	  parseData = data.substring(14,data.indexOf("Row")-1);
+				        	  totalError = Integer.parseInt(parseData);
+				        } else if (data.startsWith("Error Detail:")) {
+				        	  break;
+				        }
 			        }
-		        }
-
-		        logger.debug("InputFile: " + inputFileName + ", success: " + totalSuccess + ", error: " + totalError);
-		        FileTransmision ft = fileTransmisionService.getByFileName(inputFileName);
-		        if (!(null==ft.getFileName())) {
-			        ft.setResponseFile(file.getName());
+	
+			        logger.debug("InputFile: " + inputFileName + ", success: " + totalSuccess + ", error: " + totalError);
+			        ft.setResponseFile(outFile.getName());
 			    	ft.setResponseSuccess(totalSuccess);
 			    	ft.setResponseError(totalError);
 			        fileTransmisionService.save(ft);
 			        logger.debug("Sudah input filetrans "+ft.getFileName());	
-		        }
-		        
-		    	while (myReader.hasNextLine()) {
-		        	String data = myReader.nextLine();
-		        	System.out.println("Data: " + data);
-		        	if (data.trim().length() > 0) {
-			        	String[] arrStr = data.split("\\|");
-			        	System.out.println("Extref: " + arrStr[0]);
-			        	System.out.println("Error: " + arrStr[1]);
-		        	
-						if (file.getName().contains("OutDataStaticInv_"))  {
-							setStaticErrorResponse(inputFileName, arrStr[0], arrStr[1]);
-
-						} else if (file.getName().contains("OutRecActStmt_"))  {
-							setStatementErrorResponse(inputFileName, arrStr[0], arrStr[1]);
+			        
+			    	while (myReader.hasNextLine()) {
+			        	String data = myReader.nextLine();
+			        	System.out.println("Data: " + data);
+			        	if (data.trim().length() > 0) {
+				        	String[] arrStr = data.split("\\|");
+				        	System.out.println("Extref: " + arrStr[0]);
+				        	System.out.println("Error: " + arrStr[1]);
+			        	
+							if (outFile.getName().contains("OutDataStaticInv_"))  {
+								setStaticErrorResponse(inputFileName, arrStr[0], arrStr[1]);
 	
-						} 
-//						else if (file.getName().contains("OutRecBalance_")) {
-//							setBalanceErrorResponse(inputFileName, arrStr[0], arrStr[1]);
-//						}
-		        	}
-		        }
+							} else if (outFile.getName().contains("OutRecActStmt_"))  {
+								setStatementErrorResponse(inputFileName, arrStr[0], arrStr[1]);
+		
+							} 
+//							else if (file.getName().contains("OutRecBalance_")) {
+//								setBalanceErrorResponse(inputFileName, arrStr[0], arrStr[1]);
+//							}
+			        	}
+			        }
+	
+			        myReader.close();
+	
+				} catch (FileNotFoundException e) {
+					logger.error("File tidak ketemu");
+				}
 
-		        myReader.close();
-
-			} catch (FileNotFoundException e) {
-				logger.error("File tidak ketemu");
 			}
 		}
-	
+		
 	}
 		
 }

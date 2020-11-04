@@ -64,9 +64,10 @@ public class StaticService {
 	public String ftpToKsei () throws IOException {
     	Integer recordCounter = new Integer(0);
         String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+        String strToday = dtf.format(LocalDate.now());
 
     	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATIC") + 1;
-		String fileName = "DataStaticInv_BMAN2_" + strYesterday + "_" + String.format("%02d", fileCounter) + ".fsp";
+		String fileName = "DataStaticInv_BMAN2_" + strToday + "_" + String.format("%02d", fileCounter) + ".fsp";
 
 		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + fileName);
 		BufferedWriter bw = new BufferedWriter(fileWriter);
@@ -103,7 +104,7 @@ public class StaticService {
     	fileQ.setRecordNumber(recordCounter);
     	// kirim pake ftp
     	try {
-			ftpService.upload(fileName, kseiConfig.getLocalOutbDir());
+			ftpService.upload(fileName, kseiConfig.getLocalOutbDir(), kseiConfig.getStatRmtoutdir());
 			fileQ.setSendStatus("SUCCESS");
 		} catch (JSchException | SftpException e) {
 			fileQ.setSendStatus("ERROR");

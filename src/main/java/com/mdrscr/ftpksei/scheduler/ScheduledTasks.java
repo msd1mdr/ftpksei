@@ -22,7 +22,6 @@ import com.mdrscr.ftpksei.service.StaticService;
 @Component
 public class ScheduledTasks {
     private static final Logger logger = LoggerFactory.getLogger(ScheduledTasks.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
 
     @Autowired
     private RetryService retryService;
@@ -48,15 +47,16 @@ public class ScheduledTasks {
 		}
     }
   
-    @Scheduled(cron="${scrp.cronsched.getresponse}")
+//    @Scheduled(cron="${scrp.cronsched.getresponse}")
+    @Scheduled(fixedDelay = 600000) //tiap 10 menit
     public void getResponseFile() {
-        String strYesterday = dtf.format(LocalDate.now().minusDays(1));
-
-    	logger.info("getResponseFile started");
+    	logger.debug("getResponseFile started");
     	try {
-			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
+//			kseiResponse.getResponse("*_BMAN2_"+strYesterday+ "*.zip");
+			kseiResponse.getResponseFile();
 		} catch (JSchException | SftpException e) {
-			logger.error("FTP Error proses ftpInKsei");
+			logger.error("FTP Error proses getResponse");
+			e.printStackTrace();
 		} catch (IOException e) {
 			logger.error("IO Zip Error proses ftpInKsei");
 		}
