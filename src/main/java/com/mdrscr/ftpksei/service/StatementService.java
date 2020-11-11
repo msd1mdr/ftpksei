@@ -47,21 +47,25 @@ public class StatementService {
 	
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
   
+    public String rmSpChar (String inStr) {
+    	return StringUtils.replaceChars(inStr, "|/\'", null);
+    }
+    
     public StatementKsei mapping (BejStatementStaging bejstmt) {
     	StatementKsei stmt = new StatementKsei();
-    	stmt.setExtref(bejstmt.getExtref());
+    	stmt.setExtref(bejstmt.getExtref().trim());
     	stmt.setSeqnum(bejstmt.getSeqnum());
-    	stmt.setAc(bejstmt.getAcctno());
-    	stmt.setCurcod(bejstmt.getCurcod());
-    	stmt.setValdate(bejstmt.getValdat());
-    	stmt.setOpenbal(bejstmt.getOpnbal());
-    	stmt.setStatLineExtRef(bejstmt.getTrnref());
-    	stmt.setTrxtype(bejstmt.getTrntyp());
-    	stmt.setDc(bejstmt.getDrorcr());
-    	stmt.setCashVal(bejstmt.getTrnamt());
-    	stmt.setDescription(StringUtils.replaceChars(bejstmt.getTrndsc(), "|/\'", "...."));
-    	stmt.setCloseBal(bejstmt.getClsbal());
-    	stmt.setNotes(StringUtils.replaceChars(bejstmt.getAcnote(), "|/\'", "...."));
+    	stmt.setAc(bejstmt.getAcctno().trim());
+    	stmt.setCurcod(bejstmt.getCurcod().trim());
+    	stmt.setValdate(bejstmt.getValdat().trim());
+    	stmt.setOpenbal(bejstmt.getOpnbal().trim());
+    	stmt.setStatLineExtRef(bejstmt.getTrnref().trim());
+    	stmt.setTrxtype(bejstmt.getTrntyp().trim());
+    	stmt.setDc(bejstmt.getDrorcr().trim());
+    	stmt.setCashVal(bejstmt.getTrnamt().trim());
+    	stmt.setDescription(rmSpChar(bejstmt.getTrndsc()).trim());
+    	stmt.setCloseBal(bejstmt.getClsbal().trim());
+    	stmt.setNotes(rmSpChar(bejstmt.getAcnote()).trim());
     	return stmt;
     }
     

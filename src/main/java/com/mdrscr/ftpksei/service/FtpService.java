@@ -36,6 +36,7 @@ public class FtpService {
     	Session jschSession = jsch.getSession(kseiConfig.getFtpUser(), 
     										  kseiConfig.getFtpIpAddr());
     	jschSession.setConfig("StrictHostKeyChecking", "no");
+
     	jschSession.setPassword(kseiConfig.getFtpPasswd());
     	jschSession.connect();
     	return (ChannelSftp) jschSession.openChannel("sftp");
@@ -76,15 +77,15 @@ public class FtpService {
 
     @SuppressWarnings("unchecked")
 	public Optional<File> downloadFile (String fileName, String msgType) throws SftpException, JSchException {
-//		ChannelSftp channelSftp = new ChannelSftp();
-
 		ChannelSftp channelSftp = setupJsch();
 		channelSftp.connect();
 	
 		channelSftp.lcd(kseiConfig.getLocalInbDir());
-		if (msgType.equals("STATEMENT")) channelSftp.cd(kseiConfig.getStmtRmtoutdir());
-		else if (msgType.equals("STATIC")) channelSftp.cd(kseiConfig.getStatRmtoutdir());
-		else if (msgType.equals("BALANCE")) channelSftp.cd(kseiConfig.getBalRmtoutdir());
+		if (msgType.equals("STATEMENT")) channelSftp.cd(kseiConfig.getStmtRmtresdir());
+		else if (msgType.equals("STATIC")) channelSftp.cd(kseiConfig.getStatRmtresdir());
+		else if (msgType.equals("BALANCE")) channelSftp.cd(kseiConfig.getBalRmtresdir());
+		
+		logger.debug("Cari file di: " + channelSftp.pwd());
 		
 		@SuppressWarnings("unchecked")
 		Vector<LsEntry> rfiles = new Vector<LsEntry>(Arrays.asList());
@@ -92,7 +93,7 @@ public class FtpService {
 			rfiles = channelSftp.ls(fileName);
 		} catch (SftpException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Error ls");
+//			System.out.println("Error ls");
 			logger.warn("ls tidak dapat " + fileName);
 			//	e.printStackTrace();
 		}
@@ -112,7 +113,7 @@ public class FtpService {
 
     public void upload(String fileName, String localDir, String remoteDir) 
     				throws JSchException, SftpException {
-    	System.out.println("Akan upload " + localDir + fileName);
+    	logger.debug("Akan upload " + localDir + fileName);
     	ChannelSftp channelSftp = setupJsch();
     	channelSftp.connect();
     	channelSftp.lcd(localDir);
@@ -121,7 +122,7 @@ public class FtpService {
     	
     	System.out.println("sudah connect ftp");
     	channelSftp.put(fileName, fileName);
-    	System.out.println("sudah upload ftp");
+    	logger.debug("sudah upload ftp");
 
     	channelSftp.disconnect();
     	channelSftp.exit();

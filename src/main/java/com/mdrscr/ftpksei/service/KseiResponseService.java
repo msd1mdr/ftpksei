@@ -48,11 +48,13 @@ public class KseiResponseService {
 	private String inputFileName;
 	
 	public void setStaticErrorResponse (String filename, String extref, String errorCode) {
-		StaticKsei statKsei = staticKseiRepo.findByExtrefAndFileName(extref, filename);
-		statKsei.setAckStatus("Error");
-		statKsei.setAckNotes(errorCode);
-		statKsei.setAckTime(LocalDateTime.now());
-		staticKseiRepo.save(statKsei);		
+		List<StaticKsei> statKseiLst = staticKseiRepo.findByExtrefAndFileName(extref, filename);
+		for (StaticKsei statKsei : statKseiLst) {
+			statKsei.setAckStatus("Error");
+			statKsei.setAckNotes(errorCode);
+			statKsei.setAckTime(LocalDateTime.now());
+			staticKseiRepo.save(statKsei);		
+		}
 	}
 
 	public void setStatementErrorResponse (String filename, String extref, String errorCode) {
@@ -84,17 +86,17 @@ public class KseiResponseService {
 	
 	
 	public void getResponseFile () throws JSchException, SftpException, IOException {
-	    String strYesterday = dtf.format(LocalDate.now().minusDays(1));
+//	    String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 	    
-		List<FileTransmision> fts = fileTransmisionService.getResponseFileIsNull(strYesterday);
+		List<FileTransmision> fts = fileTransmisionService.getResponseFileIsNull();
 		for (FileTransmision ft : fts) {
 			String filename = StringUtils.replace(ft.getFileName(), "fsp", "zip");
-			System.out.println("Cari file " + "Out".concat(filename));
+			logger.debug("Cari output untuk " + ft.getFileName());
 			
 			Optional<File> dwFile = ftpService.downloadFile("Out".concat(filename), ft.getSubModul());
 			File[] extractFiles = new File[0];
 	        if (dwFile.isPresent()) {
-				System.out.print("dapat file " + dwFile.get());
+				System.out.println("Dapat file " + dwFile.get());
 				extractFiles = zipService.unzipFile(dwFile.get());
 	        }
 	        
@@ -104,7 +106,7 @@ public class KseiResponseService {
 					myReader = new Scanner(outFile);
 			        while (myReader.hasNextLine()) {
 			        	String data = myReader.nextLine();
-			        	if (data.trim().length()>0) System.out.println(data);
+
 				        String parseData = "";
 				        if (data.startsWith("Input File Name:")) {
 				        	  inputFileName = data.substring(17);
@@ -114,7 +116,7 @@ public class KseiResponseService {
 				        } else if (data.startsWith("Total Failed:")) {
 				        	  parseData = data.substring(14,data.indexOf("Row")-1);
 				        	  totalError = Integer.parseInt(parseData);
-				        } else if (data.startsWith("Error Detail:")) {
+				        } else if (data.startsWith("Error Detail :")) {
 				        	  break;
 				        }
 			        }
@@ -124,15 +126,14 @@ public class KseiResponseService {
 			    	ft.setResponseSuccess(totalSuccess);
 			    	ft.setResponseError(totalError);
 			        fileTransmisionService.save(ft);
-			        logger.debug("Sudah input filetrans "+ft.getFileName());	
+			        logger.debug("Sudah update filetrans "+ft.getFileName());	
 			        
 			    	while (myReader.hasNextLine()) {
+
 			        	String data = myReader.nextLine();
-			        	System.out.println("Data: " + data);
 			        	if (data.trim().length() > 0) {
+			        		
 				        	String[] arrStr = data.split("\\|");
-				        	System.out.println("Extref: " + arrStr[0]);
-				        	System.out.println("Error: " + arrStr[1]);
 			        	
 							if (outFile.getName().contains("OutDataStaticInv_"))  {
 								setStaticErrorResponse(inputFileName, arrStr[0], arrStr[1]);

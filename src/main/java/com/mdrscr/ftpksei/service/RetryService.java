@@ -23,7 +23,7 @@ public class RetryService {
 	
 	public void resendFile () {
 		
-		List<FileTransmision> files = fileTransmisionService.findAllError();
+		List<FileTransmision> files = fileTransmisionService.findAllError(); 
 		
 		for (FileTransmision file1 : files) {
 			file1.setSendTime(LocalDateTime.now());

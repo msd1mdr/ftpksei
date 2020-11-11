@@ -41,8 +41,18 @@ public class KseiConfig {
 //		this.ftpPort = kseiInfo.getPort();
 		this.ftpUser = paramRepo.findByName("ksei.sftp.username").getValue1();
 		this.ftpPasswd = paramRepo.findByName("ksei.sftp.password").getValue1();
-		this.ftpInboundDir = paramRepo.findByName("ksei.sftp.remoteinbdir").getValue1();
-		this.ftpOutboundDir = paramRepo.findByName("ksei.sftp.remoteoutbdir").getValue1();
+		
+		this.stmtRmtoutdir = paramRepo.findByName("ksei.sftp.rmtstmt").getValue1();
+		this.stmtRmtresdir = paramRepo.findByName("ksei.sftp.rmtstmtres").getValue1();
+		this.statRmtoutdir = paramRepo.findByName("ksei.sftp.rmtstat").getValue1();
+		this.statRmtresdir = paramRepo.findByName("ksei.sftp.rmtstatres").getValue1();
+		this.balRmtoutdir = paramRepo.findByName("ksei.sftp.rmtbal").getValue1();
+		this.balRmtresdir = paramRepo.findByName("ksei.sftp.rmtbalres").getValue1();
+		
+		
+		
+//		this.ftpInboundDir = paramRepo.findByName("ksei.sftp.remoteinbdir").getValue1();
+//		this.ftpOutboundDir = paramRepo.findByName("ksei.sftp.remoteoutbdir").getValue1();
 		this.localOutbDir = paramRepo.findByName("ksei.sftp.localoutbdir").getValue1();
 		this.localInbDir = paramRepo.findByName("ksei.sftp.localinbdir").getValue1();
 	}

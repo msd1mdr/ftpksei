@@ -48,7 +48,7 @@ public class ScheduledTasks {
     }
   
 //    @Scheduled(cron="${scrp.cronsched.getresponse}")
-    @Scheduled(fixedDelay = 600000) //tiap 10 menit
+    @Scheduled(fixedDelay = 300000) //tiap 5 menit
     public void getResponseFile() {
     	logger.debug("getResponseFile started");
     	try {
@@ -62,17 +62,12 @@ public class ScheduledTasks {
 		}
     }
     
-//    @Scheduled(fixedDelay = 120000)  //tiap 2 menit coba retry send file jika ada
+    @Scheduled(fixedDelay = 600000)  //tiap 10 menit coba retry send file jika ada
     public void scheduleTaskWithFixedRate() {
-        logger.info("Scheduler with fixedDelay=6000");
-//        retryService.resendFile();
+        logger.debug("Scheduler with fixedDelay=600000");
+        retryService.resendFile();
     }
 
-//    @Scheduled(cron = "0 0 * * * ?")
-    public void retryGetResponseFile() {
-        logger.info("Test cron 0 0 * * * ?" );
-//    	retryService.reTakeFile(strYesterday);
-    }
 
 
 }

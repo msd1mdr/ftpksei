@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,10 @@ public class BalanceService {
 	private KseiConfig kseiConfig;
 
     DateFormat df = new SimpleDateFormat("yyyyMMdd");
+
+    public String rmSpChar (String inStr) {
+    	return StringUtils.replaceChars(inStr, "|/\'", null);
+    }
 
 //	public BalanceKsei mapFrom (Bejacn bejacn) {
 //		BalanceKsei newbal = new BalanceKsei();
@@ -82,9 +87,11 @@ public class BalanceService {
 				balanceFiles.add(f1);
 			}
 
-			String strBal = df.format(new Date()) + bal.getAcctno() + "|BMAN2|" +
-							bal.getAcctno() + "|IDR|" +
-							bal.getBjvald() + "|" + bal.getBjcbal();
+			String strBal = df.format(new Date()) + 
+							rmSpChar(bal.getAcctno()).trim() + "|BMAN2|" +
+							rmSpChar(bal.getAcctno()).trim() + "|IDR|" +
+							rmSpChar(bal.getBjvald()).trim() + "|" + 
+							rmSpChar(bal.getBjcbal()).trim();
 					
 	    	bw.write(strBal); bw.newLine();
 

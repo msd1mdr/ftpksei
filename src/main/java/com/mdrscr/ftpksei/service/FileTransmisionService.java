@@ -53,7 +53,15 @@ public class FileTransmisionService {
 		return (fileTransmisionRepo.save(fileRec));
 	}
 	
-	public List<FileTransmision> getResponseFileIsNull(String valdate) {
-		return fileTransmisionRepo.findByValDateAndResponseFileIsNull(valdate);
+	public List<FileTransmision> getResponseFileIsNull() {
+		List<FileTransmision> fts = new ArrayList<>();
+		
+		for (int i=0; i<=3; i++) {
+			String strDate = dtf.format(LocalDate.now().minusDays(i));
+			List<FileTransmision> ft = fileTransmisionRepo.findByValDateAndResponseFileIsNull(strDate);
+			fts.addAll(ft);
+		}
+				
+		return fts;
 	}
 }
