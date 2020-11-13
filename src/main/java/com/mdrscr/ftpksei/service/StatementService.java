@@ -54,18 +54,18 @@ public class StatementService {
     public StatementKsei mapping (BejStatementStaging bejstmt) {
     	StatementKsei stmt = new StatementKsei();
     	stmt.setExtref(bejstmt.getExtref().trim());
-    	stmt.setSeqnum(bejstmt.getSeqnum());
-    	stmt.setAc(bejstmt.getAcctno().trim());
-    	stmt.setCurcod(bejstmt.getCurcod().trim());
-    	stmt.setValdate(bejstmt.getValdat().trim());
-    	stmt.setOpenbal(bejstmt.getOpnbal().trim());
-    	stmt.setStatLineExtRef(bejstmt.getTrnref().trim());
-    	stmt.setTrxtype(bejstmt.getTrntyp().trim());
-    	stmt.setDc(bejstmt.getDrorcr().trim());
-    	stmt.setCashVal(bejstmt.getTrnamt().trim());
-    	stmt.setDescription(rmSpChar(bejstmt.getTrndsc()).trim());
-    	stmt.setCloseBal(bejstmt.getClsbal().trim());
-    	stmt.setNotes(rmSpChar(bejstmt.getAcnote()).trim());
+    	if (!(null==bejstmt.getSeqnum())) stmt.setSeqnum(bejstmt.getSeqnum());
+    	if (!(null==bejstmt.getAcctno())) stmt.setAc(bejstmt.getAcctno().trim());
+    	if (!(null==bejstmt.getCurcod())) stmt.setCurcod(bejstmt.getCurcod().trim());
+    	if (!(null==bejstmt.getValdat())) stmt.setValdate(bejstmt.getValdat().trim());
+    	if (!(null==bejstmt.getOpnbal())) stmt.setOpenbal(bejstmt.getOpnbal().trim());
+    	if (!(null==bejstmt.getTrnref())) stmt.setStatLineExtRef(bejstmt.getTrnref().trim());
+    	if (!(null==bejstmt.getTrntyp())) stmt.setTrxtype(bejstmt.getTrntyp().trim());
+    	if (!(null==bejstmt.getDrorcr())) stmt.setDc(bejstmt.getDrorcr().trim());
+    	if (!(null==bejstmt.getTrnamt())) stmt.setCashVal(bejstmt.getTrnamt().trim());
+    	if (!(null==bejstmt.getTrndsc())) stmt.setDescription(rmSpChar(bejstmt.getTrndsc()).trim());
+    	if (!(null==bejstmt.getClsbal())) stmt.setCloseBal(bejstmt.getClsbal().trim());
+    	if (!(null==bejstmt.getAcnote())) stmt.setNotes(rmSpChar(bejstmt.getAcnote()).trim());
     	return stmt;
     }
     
@@ -88,6 +88,9 @@ public class StatementService {
 		Integer recordCounter = new Integer(0);
 
 		for (BejStatementStaging stmt : stmts) {
+			if (null == stmt) continue;
+//			if (StringUtils.isEmpty(stmt.getExtref())) continue;
+
 			if (recordCounter++ == 0) {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 

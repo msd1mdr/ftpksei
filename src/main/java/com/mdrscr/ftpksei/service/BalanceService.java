@@ -75,6 +75,7 @@ public class BalanceService {
 		BufferedWriter bw = null;
 		Integer recordCounter = new Integer(0);
 		for (Bejacn bal : balance) {
+			if (null==bal) continue;
 			if (bal.getBjvald().trim().equals("0")) continue;
 			
 			if (recordCounter++ == 0) {

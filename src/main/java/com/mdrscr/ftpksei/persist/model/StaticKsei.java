@@ -32,6 +32,21 @@ public class StaticKsei {
 	private LocalDateTime ackTime;
 	private String fileName;
 	
+	public StaticKsei() {
+		this.extref = "";
+		this.participantid = "";
+		this.participantname = "";
+		this.investorname = "";
+		this.sidnumber = "";
+		this.accountnumber = "";
+		this.bankaccnumber = "";
+		this.bankcode = "";
+		this.activitydate = "";
+		this.activity = "";
+		this.fileName = "";
+
+	}
+	
 	public String getExtref() {
 		return extref;
 	}

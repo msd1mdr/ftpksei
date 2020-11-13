@@ -55,15 +55,15 @@ public class StaticService {
 
     	StaticKsei stat = new StaticKsei();
     	stat.setExtref(rmSpChar(bejstat.getExtref()).trim());
-    	stat.setParticipantid(rmSpChar(bejstat.getPartid()).trim());
-    	stat.setParticipantname(rmSpChar(bejstat.getPartname()).trim());
-    	stat.setInvestorname(rmSpChar(bejstat.getIvstname()).trim());
-    	stat.setSidnumber(rmSpChar(bejstat.getSivstid()).trim());
-    	stat.setAccountnumber(bejstat.getSacctno());
-    	stat.setBankaccnumber(rmSpChar(bejstat.getAcctno()).trim());
-    	stat.setBankcode(bejstat.getBnkcod());
-    	stat.setActivity(bejstat.getActivity().trim());
-    	stat.setActivitydate(bejstat.getActdate().trim());
+    	if (!(null==bejstat.getPartid())) stat.setParticipantid(rmSpChar(bejstat.getPartid()).trim());
+    	if (!(null==bejstat.getPartname())) stat.setParticipantname(rmSpChar(bejstat.getPartname()).trim());
+    	if (!(null==bejstat.getIvstname())) stat.setInvestorname(rmSpChar(bejstat.getIvstname()).trim());
+    	if (!(null==bejstat.getSivstid())) stat.setSidnumber(rmSpChar(bejstat.getSivstid()).trim());
+    	if (!(null==bejstat.getSacctno())) stat.setAccountnumber(bejstat.getSacctno());
+    	if (!(null==bejstat.getAcctno())) stat.setBankaccnumber(rmSpChar(bejstat.getAcctno()).trim());
+    	if (!(null==bejstat.getBnkcod())) stat.setBankcode(bejstat.getBnkcod());
+    	if (!(null==bejstat.getActivity())) stat.setActivity(bejstat.getActivity().trim());
+    	if (!(null==bejstat.getActdate())) stat.setActivitydate(bejstat.getActdate().trim());
     	return stat;
     }
        
@@ -86,6 +86,8 @@ public class StaticService {
 		Integer recordCounter = new Integer(0);
 
 	    for (BejStaticStaging stat : stats) {
+	    	if (null==stat) continue;
+	    	
 			if (recordCounter++ == 0) {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 
