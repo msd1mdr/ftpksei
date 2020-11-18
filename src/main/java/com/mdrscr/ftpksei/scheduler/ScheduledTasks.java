@@ -65,6 +65,7 @@ public class ScheduledTasks {
     @Scheduled(fixedDelay = 600000)  //tiap 10 menit coba retry send file jika ada
     public void scheduleTaskWithFixedRate() {
         logger.debug("Scheduler with fixedDelay=600000");
+        System.out.println("Coba resend Error File");
         retryService.resendFile();
     }
 

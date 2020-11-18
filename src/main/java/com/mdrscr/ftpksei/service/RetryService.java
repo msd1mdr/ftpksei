@@ -29,8 +29,8 @@ public class RetryService {
 			file1.setSendTime(LocalDateTime.now());
 			String outDir = "";
 			if (file1.getSubModul().equals("STATEMENT")) outDir = kseiConfig.getStmtRmtoutdir();
-			else if (file1.getSendMethod().equals("STATIC")) outDir = kseiConfig.getStatRmtoutdir();
-			else if (file1.getSendMethod().equals("BALANCE")) outDir = kseiConfig.getBalRmtoutdir();
+			else if (file1.getSubModul().equals("STATIC")) outDir = kseiConfig.getStatRmtoutdir();
+			else if (file1.getSubModul().equals("BALANCE")) outDir = kseiConfig.getBalRmtoutdir();
 
 			try {
 				ftpService.upload(file1.getFileName(), kseiConfig.getLocalOutbDir(), outDir);
@@ -39,7 +39,7 @@ public class RetryService {
 				// TODO Auto-generated catch block
 				Integer counter = (file1.getRetry()==null)?1:file1.getRetry()+1;
 				file1.setRetry(counter);
-//				e.printStackTrace();
+				e.printStackTrace();
 			}
 			fileTransmisionService.save(file1);
 
