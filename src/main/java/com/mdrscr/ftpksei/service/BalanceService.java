@@ -82,6 +82,9 @@ public class BalanceService {
 				++fileCounter;
 				f1 = new File(kseiConfig.getLocalOutbDir() + 
 						"RecBalance_BMAN2_" + strToday + "_" + String.format("%02d", fileCounter) + ".fsp");
+				f1.setExecutable(false);
+				f1.setReadable(true, true);
+				f1.setWritable(true, true);
 				logger.debug("Akan buat file " + f1.getName());
 				fw = new FileWriter(f1);
 				bw = new BufferedWriter(fw);
