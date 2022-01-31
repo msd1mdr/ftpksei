@@ -24,18 +24,22 @@ import com.jcraft.jsch.SftpException;
 import com.mdrscr.ftpksei.persist.model.BejStaticStaging;
 import com.mdrscr.ftpksei.persist.model.FileTransmision;
 import com.mdrscr.ftpksei.persist.model.StaticKsei;
+import com.mdrscr.ftpksei.persist.model.StaticMsg;
 import com.mdrscr.ftpksei.persist.repo.BejStaticStagingRepo;
 import com.mdrscr.ftpksei.persist.repo.StaticKseiRepo;
+import com.mdrscr.ftpksei.persist.repo.StaticMsgRepo;
 import com.mdrscr.ftpksei.properties.KseiConfig;
 
 @Service
 public class StaticService {
 
     private static final Logger logger = LoggerFactory.getLogger(StaticService.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd"); 
 
 	@Autowired
 	private BejStaticStagingRepo bejStaticStgRepo;
+	@Autowired
+	private StaticMsgRepo staticMsgRepo;
 	@Autowired
 	private StaticKseiRepo staticKseiRepo;
 	@Autowired
@@ -51,19 +55,20 @@ public class StaticService {
     	return StringUtils.replaceChars(inStr, "|/\'", null);
     }
 
-    public StaticKsei mapping (BejStaticStaging bejstat) {
+//    public StaticKsei mapping (BejStaticStaging bejstat) {
+    public StaticKsei mapping (StaticMsg bejstat) {
 
     	StaticKsei stat = new StaticKsei();
     	stat.setExtref(rmSpChar(bejstat.getExtref()).trim());
-    	if (!(null==bejstat.getPartid())) stat.setParticipantid(rmSpChar(bejstat.getPartid()).trim());
-    	if (!(null==bejstat.getPartname())) stat.setParticipantname(rmSpChar(bejstat.getPartname()).trim());
-    	if (!(null==bejstat.getIvstname())) stat.setInvestorname(rmSpChar(bejstat.getIvstname()).trim());
-    	if (!(null==bejstat.getSivstid())) stat.setSidnumber(rmSpChar(bejstat.getSivstid()).trim());
-    	if (!(null==bejstat.getSacctno())) stat.setAccountnumber(bejstat.getSacctno());
-    	if (!(null==bejstat.getAcctno())) stat.setBankaccnumber(rmSpChar(bejstat.getAcctno()).trim());
-    	if (!(null==bejstat.getBnkcod())) stat.setBankcode(bejstat.getBnkcod());
+    	if (!(null==bejstat.getParticipantid())) stat.setParticipantid(rmSpChar(bejstat.getParticipantid()).trim());
+    	if (!(null==bejstat.getParticipantname())) stat.setParticipantname(rmSpChar(bejstat.getParticipantname()).trim());
+    	if (!(null==bejstat.getInvestorname())) stat.setInvestorname(rmSpChar(bejstat.getInvestorname()).trim());
+    	if (!(null==bejstat.getSidnumber())) stat.setSidnumber(rmSpChar(bejstat.getSidnumber()).trim());
+    	if (!(null==bejstat.getAccountnumber())) stat.setAccountnumber(bejstat.getAccountnumber());
+    	if (!(null==bejstat.getBankaccnumber())) stat.setBankaccnumber(rmSpChar(bejstat.getBankaccnumber()).trim());
+    	if (!(null==bejstat.getBankcode())) stat.setBankcode(bejstat.getBankcode());
     	if (!(null==bejstat.getActivity())) stat.setActivity(bejstat.getActivity().trim());
-    	if (!(null==bejstat.getActdate())) stat.setActivitydate(bejstat.getActdate().trim());
+    	if (!(null==bejstat.getActivitydate())) stat.setActivitydate(bejstat.getActivitydate().trim());
     	return stat;
     }
        
@@ -76,16 +81,18 @@ public class StaticService {
     	Integer fileCounter = fileTransmisionService.getLastFileNumber("STATIC");
 //		String fileName = "DataStaticInv_BMAN2_" + strToday + "_" + String.format("%02d", fileCounter) + ".fsp";
 
-	    List<BejStaticStaging> stats = bejStaticStgRepo.findByActdate(strYesterday);
+//	    List<BejStaticStaging> stats = bejStaticStgRepo.findByActdate(strYesterday);
+	    List<StaticMsg> stats = staticMsgRepo.findAllByActivitydateAndAckActivity(strYesterday, "Valid");
 
 //		FileWriter fileWriter = new FileWriter(kseiConfig.getLocalOutbDir() + fileName);
 //		BufferedWriter bw = new BufferedWriter(fileWriter);
 		File f1 = null;
 		FileWriter fw = null;
 		BufferedWriter bw = null;
-		Integer recordCounter = new Integer(0);
+		Integer recordCounter = 0;
 
-	    for (BejStaticStaging stat : stats) {
+//	    for (BejStaticStaging stat : stats) {
+	    for (StaticMsg stat : stats) {
 	    	if (null==stat) continue;
 	    	
 			if (recordCounter++ == 0) {

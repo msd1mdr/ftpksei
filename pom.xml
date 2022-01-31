@@ -10,9 +10,9 @@
 	</parent>
 	<groupId>com.mdrscr.ftpksei</groupId>
 	<artifactId>scrftpksei</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.2-SNAPSHOT</version>
 	<name>scrftpksei</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Send FTP ke KSEI</description>
 	
 
 	<properties>

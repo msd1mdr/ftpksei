@@ -24,12 +24,12 @@ public class FileTransmisionService {
 	@Autowired
 	private FileTransmisionRepo fileTransmisionRepo;
 	
-    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd"); 
 
 	public Integer getLastFileNumber (String subModul) {
 	    String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 		List<FileTransmision> files = fileTransmisionRepo.findBySubModulAndValDateOrderByDailyCounterDesc(subModul, strYesterday);
-		Integer lastNumber = new Integer(0);
+		Integer lastNumber = 0;
 		if (files.size() > 0) lastNumber = files.get(0).getDailyCounter();
 		return lastNumber;
 	}

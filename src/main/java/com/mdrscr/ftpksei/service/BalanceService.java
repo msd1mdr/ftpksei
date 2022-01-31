@@ -30,7 +30,7 @@ import com.mdrscr.ftpksei.properties.KseiConfig;
 public class BalanceService {
 
     private static final Logger logger = LoggerFactory.getLogger(BalanceService.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd"); 
 
 	@Autowired
 	private BejacnRepo bejacnRepo;
@@ -73,10 +73,12 @@ public class BalanceService {
 		File f1 = null;
 		FileWriter fw = null;
 		BufferedWriter bw = null;
-		Integer recordCounter = new Integer(0);
+		Integer recordCounter = 0;
+
 		for (Bejacn bal : balance) {
 			if (null==bal) continue;
 			if (bal.getBjvald().trim().equals("0")) continue;
+			if (bal.getBjstat().equals("C")) continue;   //BEJSTAT udh closed tdk perlu dikirim. 20-01-2022
 			
 			if (recordCounter++ == 0) {
 				++fileCounter;

@@ -3,9 +3,7 @@ package com.mdrscr.ftpksei.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -41,7 +39,7 @@ public class KseiResponseService {
 	private ZipService zipService;
 	
     private static final Logger logger = LoggerFactory.getLogger(KseiResponseService.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+//    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
 
 	private int totalSuccess;
 	private int totalError;

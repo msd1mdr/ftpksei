@@ -32,7 +32,7 @@ import com.mdrscr.ftpksei.properties.KseiConfig;
 public class StatementService {
 	
     private static final Logger logger = LoggerFactory.getLogger(StatementService.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd"); 
 			
 	@Autowired
 	private BejStatementStagingRepo bejStmtStgRepo;
@@ -85,7 +85,7 @@ public class StatementService {
 		File f1 = null;
 		FileWriter fw = null;
 		BufferedWriter bw = null;
-		Integer recordCounter = new Integer(0);
+		Integer recordCounter = 0;
 
 		for (BejStatementStaging stmt : stmts) {
 			if (null == stmt) continue;
