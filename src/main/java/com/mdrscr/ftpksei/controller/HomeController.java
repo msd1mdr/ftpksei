@@ -32,7 +32,7 @@ public class HomeController {
     
 
     private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd"); 
     private static final String strYesterday = dtf.format(LocalDate.now().minusDays(1));
 
 //	@GetMapping(value="/unzip")

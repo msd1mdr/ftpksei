@@ -39,7 +39,7 @@ public class KseiResponseService {
 	private ZipService zipService;
 	
     private static final Logger logger = LoggerFactory.getLogger(KseiResponseService.class);
-//    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("YYYYMMdd"); 
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd"); 
 
 	private int totalSuccess;
 	private int totalError;
